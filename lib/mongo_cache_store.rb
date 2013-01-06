@@ -42,6 +42,7 @@ module MongoCacheStoreBackend
     end
 
     def write_entry(key, entry, options)
+
       col = get_collection(options)
 
       if (@use_index)

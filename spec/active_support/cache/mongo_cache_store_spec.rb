@@ -29,15 +29,19 @@ module ActiveSupport
         end
     
         it "can write values" do
-          @store.write('fnord', 'I am vaguely disturbed.')
-          @store.fetch('fnord').should == "I am vaguely disturbed."
+          @store.write('forever!', 'I live forever!')
+          @store.fetch('forever!').should == "I live forever!"
         end
 
         it "can expire" do
           @store.fetch 'fnord', expires_in: 30.seconds do 
             "I am vaguely disturbed."
           end
-          
+
+          sleep 65
+
+          response = @store.fetch 'fnord'
+          response.should == nil
         end
 
         it "can cache objects" do
