@@ -32,9 +32,17 @@ module MongoCacheStoreBackend
       col ||= get_collection(options)
 
       begin
-        response = col.find_one(_id: key)
+        query = {
+          :_id => key,
+          :expires_at => {
+            '$gt' => Time.now 
+          }
+        }
+
+        response = col.find_one(query)
         return nil if response.nil?
-        ActiveSupport::Cache::Entry.create(response['value'], response['created_at'].to_f, response)
+        value = response.delete('value')
+        ActiveSupport::Cache::Entry.new(response['serialized'] ? Marshal.load(value) : value, response)
       rescue Mongo::ConnectionFailure => ex
         nil
       end
@@ -55,43 +63,52 @@ module MongoCacheStoreBackend
         rescue Mongo::ConnectionFailure => ex
           false
         end
-        return indexed unless indexed
+        return indexed if indexed.nil?
       end
 
+      serialize = false
+      try_cnt = 0
       begin 
+        try_cnt += 1
+        now = Time.now
         col.save({
           :_id => key,
-          :created_at => Time.now,
+          :created_at => now,
           :expires_in => entry.expires_in,
+          :expires_at => entry.expires_in.nil? ? Time.utc(9999) : now + entry.expires_in,
           :compressed => entry.compressed?,
-          :value      => entry.raw_value 
+          :serialized => serialize,
+          :value      => serialize ? Marshal.dump(entry.value) : entry.value 
         })
+      rescue Mongo::ConnectionFailure => ex
+        false
+      rescue BSON::InvalidDocument => ex
+        serialize = true
+        retry unless try_cnt > 1
+        raise ex
+      end
+    end
+
+    def delete_entry(key, options)
+      col = get_collection(options) 
+      begin
+        col.remove({'_id' => key})
       rescue Mongo::ConnectionFailure => ex
         false
       end
     end
 
-    def delete_entry(key, options)
 
-    end
-
+    
 
     private 
-
-    def expand_key(key)
-      return key 
-    end
-
-    def namespaced_key(key, options)
-      return key 
-    end
-
+    
     def get_collection(options)
       name_parts = ['cache'] 
       name_parts.push options[:namespace] unless options[:namespace].nil?
 
-      expires_in = options[:expires_in].nil? ? 'forever' : options[:expires_in].to_f
-      name_parts.push expires_in.nil? ? 'forever' : expires_in.to_s.sub('.','_') 
+      expires_in = options[:expires_in]
+      name_parts.push expires_in.nil? ? 'forever' : expires_in.to_i
       collection_name = name_parts.join('.')
 
       collection = @collection_map[collection_name]
@@ -111,7 +128,7 @@ module MongoCacheStoreBackend
 
     def create_collection(name, expires_in)
       collection = @db[name]
-      collection.ensure_index('created_at',{ expireAfterSeconds: expires_in })
+      collection.ensure_index('created_at',{ expireAfterSeconds: expires_in.to_i }) unless expires_in.nil?
       return collection
     end
 
@@ -156,6 +173,17 @@ module ActiveSupport
         if (@db.nil?)
           #TODO 
         end 
+      end
+
+
+      private 
+
+      def expand_key(key)
+        return key 
+      end
+
+      def namespaced_key(key, options)
+        return key 
       end
 
     end

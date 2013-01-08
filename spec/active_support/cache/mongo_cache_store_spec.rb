@@ -34,11 +34,11 @@ module ActiveSupport
         end
 
         it "can expire" do
-          @store.fetch 'fnord', expires_in: 30.seconds do 
+          @store.fetch 'fnord', expires_in: 10.seconds do 
             "I am vaguely disturbed."
           end
 
-          sleep 65
+          sleep 11 
 
           response = @store.fetch 'fnord'
           response.should == nil
