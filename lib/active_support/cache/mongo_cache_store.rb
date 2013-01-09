@@ -61,6 +61,7 @@ module MongoCacheStoreBackend
             :collection => col.name
           })
         rescue Mongo::ConnectionFailure => ex
+          warn "MongoCacheStore Connection Error"
           false
         end
         return indexed if indexed.nil?
@@ -102,7 +103,7 @@ module MongoCacheStoreBackend
     
 
     private 
-    
+
     def get_collection(options)
       name_parts = ['cache'] 
       name_parts.push options[:namespace] unless options[:namespace].nil?
