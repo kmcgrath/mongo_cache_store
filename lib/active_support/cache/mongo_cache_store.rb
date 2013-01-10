@@ -92,6 +92,32 @@ module MongoCacheStoreBackend
   end
 
   module Capped
+    include Base
+
+    def clear(options = {})
+      col = get_collection(options) 
+      safe_rescue do
+        col.update({},{:expires_at => Time.new})
+      end
+    end
+
+    private 
+
+    def backend_name
+      "capped"
+    end
+
+    def get_collection(options)
+      @db[get_collection_name(options)]
+    end
+
+    def delete_entry(key,options)
+      col = get_collection(options)
+      safe_rescue do
+        col.update({:_id => key}, {:expires_at => Time.new})
+      end
+    end
+
   end
 
   module TTL

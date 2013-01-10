@@ -25,6 +25,7 @@ module ActiveSupport
           @store.fetch 'fnord', expires_in: 10.seconds do 
             "I am vaguely disturbed."
           end
+          @store.exist?("fnord").should == true
 
           sleep 11 
 
@@ -32,7 +33,22 @@ module ActiveSupport
           response.should == nil
         end
 
-        it "can cache objects" do
+        it "can cache a hash" do
+          @store.write('hashme',
+            {
+              :one => 1,
+              :two => 'two',
+              :three => :three
+            },
+            expires_in: 1.hour
+          )
+
+          hash = @store.read('hashme')
+          hash[:one].should == 1
+
+        end
+
+        it "can cache class instances" do
           @store.fetch 'my_class', expires_in: 30.seconds do
             MongoCacheStoreTestSaveClass.new('what did i say?')
           end
@@ -96,11 +112,27 @@ module ActiveSupport
         end
       end
 
+      describe "TTL Caching Force Serialization" do
+        it_behaves_like "a cache store" 
+        before(:all) do
+          db = Mongo::DB.new('mongo_cache_store_test', Mongo::Connection.new)
+          @store = ActiveSupport::Cache::MongoCacheStore.new(:TTL, db: db, serialize: :always)
+        end
+      end
+
       describe "Standard Caching" do
         it_behaves_like "a cache store"
         before(:all) do
           db = Mongo::DB.new('mongo_cache_store_test', Mongo::Connection.new)
           @store = ActiveSupport::Cache::MongoCacheStore.new(:Standard, db: db)
+        end
+      end
+
+      describe "Standard Caching Force Serialization" do
+        it_behaves_like "a cache store"
+        before(:all) do
+          db = Mongo::DB.new('mongo_cache_store_test', Mongo::Connection.new)
+          @store = ActiveSupport::Cache::MongoCacheStore.new(:Standard, db: db, serialize: :always)
         end
       end
 
