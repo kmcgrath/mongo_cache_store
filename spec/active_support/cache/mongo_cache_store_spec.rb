@@ -13,20 +13,8 @@ end
 
 module ActiveSupport 
   module Cache
-    describe MongoCacheStore do
-      describe "initializing" do
-        it "can take a Mongo::Collection object" do
-          db = Mongo::DB.new('mongo_store_test', Mongo::Connection.new)
-          store = ActiveSupport::Cache::MongoCacheStore.new(:TTL, db: db)
-        end
-        
-      end
-
-      describe "TTL caching" do
-        before(:all) do
-          db = Mongo::DB.new('mongo_ttl_store_test', Mongo::Connection.new)
-          @store = ActiveSupport::Cache::MongoCacheStore.new(:TTL, db: db)
-        end
+    shared_examples "a cache store" do
+      describe "Caching" do
     
         it "can write values" do
           @store.write('forever!', 'I live forever!')
@@ -49,7 +37,7 @@ module ActiveSupport
             MongoCacheStoreTestSaveClass.new('what did i say?')
           end
 
-          my_class = @store.fetch 'my_class', expires_in: 30.seconds
+          my_class = @store.fetch 'my_class'
           my_class.set_me.should == 'what did i say?'
         end
 
@@ -85,7 +73,37 @@ module ActiveSupport
          
         end
 
+        after(:all) do
+          @store.clear
+        end 
       end
+    end
+
+
+    describe MongoCacheStore do
+      describe "initializing" do
+        it "can take a Mongo::DB object" do
+          db = Mongo::DB.new('mongo_store_test', Mongo::Connection.new)
+          store = ActiveSupport::Cache::MongoCacheStore.new(:TTL, db: db)
+        end
+      end
+
+      describe "TTL Caching" do
+        it_behaves_like "a cache store" 
+        before(:all) do
+          db = Mongo::DB.new('mongo_cache_store_test', Mongo::Connection.new)
+          @store = ActiveSupport::Cache::MongoCacheStore.new(:TTL, db: db)
+        end
+      end
+
+      describe "Standard Caching" do
+        it_behaves_like "a cache store"
+        before(:all) do
+          db = Mongo::DB.new('mongo_cache_store_test', Mongo::Connection.new)
+          @store = ActiveSupport::Cache::MongoCacheStore.new(:Standard, db: db)
+        end
+      end
+
 
     end
   end

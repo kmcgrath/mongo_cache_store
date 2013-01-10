@@ -4,110 +4,154 @@ require "active_support"
 
 
 module MongoCacheStoreBackend
+  module Base
+    private 
+
+      def expand_key(key)
+        return key 
+      end
+
+      def namespaced_key(key, options)
+        return key 
+      end
+
+      def read_entry(key,options)
+        col = get_collection(options)
+
+        safe_rescue do 
+          query = {
+            :_id => key,
+            :expires_at => {
+              '$gt' => Time.now 
+            }
+          }
+
+          response = col.find_one(query)
+          return nil if response.nil?
+
+          if response['serialized']
+            Marshal.load(response['value'])
+          else
+            ActiveSupport::Cache::Entry.new(response['value'])
+          end
+        end
+      end
+
+
+      def write_entry(key,entry,options)
+        col = get_collection(options)
+        serialize = options[:serialize] == :always ? true : false
+        try_cnt = 0
+        now = Time.now
+
+        safe_rescue do
+          begin
+            col.save({
+              :_id => key,
+              :created_at => now,
+              :expires_in => entry.expires_in,
+              :expires_at => entry.expires_in.nil? ? Time.utc(9999) : now + entry.expires_in,
+              :compressed => entry.compressed?,
+              :serialized => serialize,
+              :value      => serialize ? Marshal.dump(entry) : entry.value 
+            })
+          rescue BSON::InvalidDocument => ex
+            serialize = true
+            retry if options[:serialize] == :on_fail and try_cnt < 1
+          end
+        end
+      end
+
+      def delete_entry(key,options)
+        col = get_collection(options)
+        safe_rescue do
+          col.remove({'_id' => key})
+        end
+      end
+    
+      def get_collection_name(options = {})
+        name_parts = ['cache'] 
+        name_parts.push(backend_name)
+        name_parts.push options[:namespace] unless options[:namespace].nil?
+        return name_parts.join('.')
+      end
+
+      def get_collection(options)
+        return options[:collection] if options[:collection].is_a? Mongo::Collection
+      end
+
+      def safe_rescue
+        begin
+          yield
+        rescue => e
+          warn e
+          logger.error("FileStoreError (#{e}): #{e.message}") if logger 
+          false
+        end
+      end
+  end
+
   module Capped
   end
 
   module TTL
+    include Base
+
+    alias :get_collection_prefix :get_collection_name
+
+    def clear(options = {})
+      @db.collection_names.each do |cname|
+        prefix = get_collection_prefix
+        if prefix.match(/^cache/) and cname.match(/^#{get_collection_prefix(options)}/)
+          @db[cname].drop
+        end
+      end
+    end
 
     protected
 
     def read_entry(key, options)
-      col = nil?
-
-      if (@use_index)
-        ki  = get_key_index_collection(options)
-        col = begin
-          response = ki.find_one({
-            :_id => key,
-          })
-          return nil if response.nil?
-
-          @db[response['collection']]
- 
-        rescue Mongo::ConnectionFailure => ex
-          false
-        end
-      end
-
-      col ||= get_collection(options)
-
-      begin
-        query = {
-          :_id => key,
-          :expires_at => {
-            '$gt' => Time.now 
-          }
-        }
-
-        response = col.find_one(query)
-        return nil if response.nil?
-        value = response.delete('value')
-        ActiveSupport::Cache::Entry.new(response['serialized'] ? Marshal.load(value) : value, response)
-      rescue Mongo::ConnectionFailure => ex
-        nil
-      end
-       
+      options[:collection] = get_collection_from_index(key,options)
+      super(key, options)
     end
 
+
     def write_entry(key, entry, options)
+      options[:collection] = get_collection(options)
 
-      col = get_collection(options)
+      super(key, entry, options)
 
-      if (@use_index)
+      if (options[:use_index])
         ki  = get_key_index_collection(options)
-        indexed = begin
+        indexed = safe_rescue do
           ki.save({
             :_id => key,
-            :collection => col.name
+            :collection => options[:collection].name
           })
-        rescue Mongo::ConnectionFailure => ex
-          warn "MongoCacheStore Connection Error"
-          false
         end
-        return indexed if indexed.nil?
       end
 
-      serialize = false
-      try_cnt = 0
-      begin 
-        try_cnt += 1
-        now = Time.now
-        col.save({
-          :_id => key,
-          :created_at => now,
-          :expires_in => entry.expires_in,
-          :expires_at => entry.expires_in.nil? ? Time.utc(9999) : now + entry.expires_in,
-          :compressed => entry.compressed?,
-          :serialized => serialize,
-          :value      => serialize ? Marshal.dump(entry.value) : entry.value 
-        })
-      rescue Mongo::ConnectionFailure => ex
-        false
-      rescue BSON::InvalidDocument => ex
-        serialize = true
-        retry unless try_cnt > 1
-        raise ex
-      end
     end
 
     def delete_entry(key, options)
-      col = get_collection(options) 
-      begin
-        col.remove({'_id' => key})
-      rescue Mongo::ConnectionFailure => ex
-        false
-      end
+      options[:collection] = get_collection_from_index(key,options)
+      super(key, options)
     end
-
 
     
 
     private 
 
-    def get_collection(options)
-      name_parts = ['cache'] 
-      name_parts.push options[:namespace] unless options[:namespace].nil?
+    def backend_name
+      "ttl"
+    end
 
+    def get_collection(options)
+
+      col = super 
+      return col unless col.nil?
+
+      name_parts = [get_collection_prefix(options)]
       expires_in = options[:expires_in]
       name_parts.push expires_in.nil? ? 'forever' : expires_in.to_i
       collection_name = name_parts.join('.')
@@ -118,12 +162,29 @@ module MongoCacheStoreBackend
       return collection
     end
 
+
     def get_key_index_collection(options)
-      name_parts = ['cache']
+      name_parts = [get_collection_prefix(options)]
       name_parts.push options[:namespace] unless options[:namespace].nil?
       name_parts.push 'key_index'
 
       @db[name_parts.join('.')]
+    end
+
+    def get_collection_from_index(key,options)
+      if (options[:use_index])
+        ki  = get_key_index_collection(options)
+
+        options[:collection] = safe_rescue do  
+          response = ki.find_one({
+            :_id => key,
+          })
+          return nil if response.nil?
+
+          return @db[response['collection']]
+        end
+      end
+      nil
     end
 
 
@@ -133,39 +194,85 @@ module MongoCacheStoreBackend
       return collection
     end
 
-    def build_backend(options = {})
-      options = {
+    def build_backend(options)
+      options.replace({
         :use_index => true
-      }.merge(options) 
+      }.merge(options)) 
 
-      @use_index = options[:use_index]
       @collection_map = {}
-
     end
 
   end
 
-  module Standard
-  end
 
+
+  module Standard
+    include Base
+
+    def clear(options = {})
+      col = get_collection(options) 
+      safe_rescue do
+        col.remove
+      end
+    end
+
+    private 
+
+    def backend_name
+      "standard"
+    end
+
+    def get_collection(options)
+      @db[get_collection_name(options)]
+    end
+
+    def write_entry(key, entry, options)
+      ret = super
+      @write_cnt += 1
+      if options[:auto_flush] and @write_cnt > options[:auto_flush_threshold]
+        safe_rescue do
+          col = get_collection(options)
+          col.delete({
+            :expires_at => {
+              '$gt' => Time.now 
+            }
+          })
+        end
+        @write_cnt = 0
+      end
+      return ret
+    end
+
+    def build_backend(options)
+      options.replace({
+        :auto_flush => true,
+        :auto_flush_threshold => 10_000,
+        :collection => nil
+      }.merge(options))
+
+      @write_cnt = 0
+    end
+  end
 end
+
 
 module ActiveSupport
   module Cache
 
     class MongoCacheStore < Store
 
-      def initialize (backend=:Default, options = {})
+      def initialize (backend=:Standard, options = {})
        
         options = {
           :db_name => 'mongo_cache',
           :db => nil,
-          :namespace => nil
+          :namespace => nil,
+          :serialize => :on_fail
         }.merge(options) 
 
         @db = options.delete :db
 
-        self.class.send(:include, MongoCacheStoreBackend.const_get(backend))
+        extend MongoCacheStoreBackend.const_get(backend)
 
         build_backend(options)
 
@@ -175,18 +282,6 @@ module ActiveSupport
           #TODO 
         end 
       end
-
-
-      private 
-
-      def expand_key(key)
-        return key 
-      end
-
-      def namespaced_key(key, options)
-        return key 
-      end
-
     end
   end
 end
