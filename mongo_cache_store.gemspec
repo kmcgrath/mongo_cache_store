@@ -7,10 +7,10 @@ Gem::Specification.new do |gem|
   gem.name          = "mongo_cache_store"
   gem.version       = MongoCacheStore::VERSION
   gem.authors       = ["Kevin McGrath"]
-  gem.email         = ["kevin.mcgrath@sungard.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
-  gem.homepage      = ""
+  gem.email         = ["kmcgrath@baknet.com"]
+  gem.description   = %q{A MongoDB ActiveSupport Cache}
+  gem.summary       = %q{A MongoDB ActiveSupport Cache}
+  gem.homepage      = "https://github.com/kmcgrath/mongo_cache_store"
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
