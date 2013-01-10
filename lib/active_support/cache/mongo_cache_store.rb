@@ -1,10 +1,15 @@
 require "mongo_cache_store/version"
 require "mongo"
-require "active_support"
+require "active_support/cache"
 
 
 module MongoCacheStoreBackend
+
+  # Base methods used by all MongoCacheStore backends 
   module Base
+
+    # No public methods are defined for this module
+
     private 
 
       def expand_key(key)
@@ -91,6 +96,10 @@ module MongoCacheStoreBackend
       end
   end
 
+  # MongoCacheStoreBackend for capped collections 
+  #  
+  # == Capped Collections
+  #
   module Capped
     include Base
 
@@ -117,9 +126,12 @@ module MongoCacheStoreBackend
         col.update({:_id => key}, {:expires_at => Time.new})
       end
     end
-
   end
 
+  # MongoCacheStoreBackend for TTL collections 
+  #  
+  # == Time To Live (TTL) collections 
+  #
   module TTL
     include Base
 
@@ -137,7 +149,12 @@ module MongoCacheStoreBackend
     protected
 
     def read_entry(key, options)
-      options[:collection] = get_collection_from_index(key,options)
+      if options[:expires_in]
+        options[:collection] = get_collection(options)
+      else
+        options[:collection] = get_collection_from_index(key,options)
+      end
+
       super(key, options)
     end
 
@@ -231,7 +248,10 @@ module MongoCacheStoreBackend
   end
 
 
-
+  # MongoCacheStoreBackend for standard collections 
+  #  
+  # == Standard collections 
+  #
   module Standard
     include Base
 
