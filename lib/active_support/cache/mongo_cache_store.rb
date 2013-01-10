@@ -30,7 +30,7 @@ module MongoCacheStoreBackend
           return nil if response.nil?
 
           if response['serialized']
-            Marshal.load(response['value'])
+            Marshal.load(response['value'].to_s)
           else
             ActiveSupport::Cache::Entry.new(response['value'])
           end
@@ -53,7 +53,7 @@ module MongoCacheStoreBackend
               :expires_at => entry.expires_in.nil? ? Time.utc(9999) : now + entry.expires_in,
               :compressed => entry.compressed?,
               :serialized => serialize,
-              :value      => serialize ? Marshal.dump(entry) : entry.value 
+              :value      => serialize ? BSON::Binary.new(Marshal.dump(entry)) : entry.value 
             })
           rescue BSON::InvalidDocument => ex
             serialize = true
