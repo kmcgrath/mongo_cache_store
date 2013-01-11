@@ -112,10 +112,10 @@ module MongoCacheStoreBackend
 
     def clear(options = {})
       col = get_collection(options) 
-      safe_rescue do
+      ret = safe_rescue do
         col.update({},{:expires_at => Time.new})
       end
-      true
+      ret ? true : false
     end
 
     private 
@@ -149,7 +149,9 @@ module MongoCacheStoreBackend
       @db.collection_names.each do |cname|
         prefix = get_collection_prefix
         if prefix.match(/^cache/) and cname.match(/^#{get_collection_prefix(options)}/)
-          @db[cname].drop
+          safe_rescue do
+            @db[cname].drop
+          end
         end
       end
       true
@@ -266,10 +268,10 @@ module MongoCacheStoreBackend
 
     def clear(options = {})
       col = get_collection(options) 
-      safe_rescue do
+      ret = safe_rescue do
         col.remove
       end
-      true
+      ret ? true : false
     end
 
     private 
