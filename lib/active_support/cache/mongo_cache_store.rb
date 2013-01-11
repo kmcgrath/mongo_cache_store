@@ -115,6 +115,7 @@ module MongoCacheStoreBackend
       safe_rescue do
         col.update({},{:expires_at => Time.new})
       end
+      true
     end
 
     private 
@@ -151,6 +152,7 @@ module MongoCacheStoreBackend
           @db[cname].drop
         end
       end
+      true
     end
 
     protected
@@ -267,6 +269,7 @@ module MongoCacheStoreBackend
       safe_rescue do
         col.remove
       end
+      true
     end
 
     private 
