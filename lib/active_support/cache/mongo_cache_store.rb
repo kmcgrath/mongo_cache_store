@@ -1,3 +1,4 @@
+#encoding: utf-8
 require "mongo_cache_store/version"
 require "mongo"
 require "active_support/cache"
@@ -34,11 +35,16 @@ module MongoCacheStoreBackend
           response = col.find_one(query)
           return nil if response.nil?
 
+          entry_options = {
+            :compressed => response[:compressed],
+            :expires_in => response[:expires_in] 
+          }
           if response['serialized']
-            Marshal.load(response['value'].to_s)
+            r_value = response['value'].to_s
           else
-            ActiveSupport::Cache::Entry.new(response['value'])
+            r_value = Marshal.dump(response['value'])
           end
+          ActiveSupport::Cache::Entry.create(r_value,response[:created_at],entry_options)
         end
       end
 
@@ -58,7 +64,7 @@ module MongoCacheStoreBackend
               :expires_at => entry.expires_in.nil? ? Time.utc(9999) : now + entry.expires_in,
               :compressed => entry.compressed?,
               :serialized => serialize,
-              :value      => serialize ? BSON::Binary.new(Marshal.dump(entry)) : entry.value 
+              :value      => serialize ? BSON::Binary.new(entry.raw_value) : entry.value 
             })
           rescue BSON::InvalidDocument => ex
             serialize = true
