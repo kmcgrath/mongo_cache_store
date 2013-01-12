@@ -56,20 +56,26 @@ module MongoCacheStoreBackend
         try_cnt = 0
         now = Time.now
 
+        save_doc = {
+          :_id => key,
+          :created_at => now,
+          :expires_in => entry.expires_in,
+          :expires_at => entry.expires_in.nil? ? Time.utc(9999) : now + entry.expires_in,
+          :compressed => entry.compressed?,
+          :serialized => serialize,
+          :value      => serialize ? BSON::Binary.new(entry.raw_value) : entry.value 
+        }.merge(options[:xentry] || {})
+
         safe_rescue do
           begin
-            col.save({
-              :_id => key,
-              :created_at => now,
-              :expires_in => entry.expires_in,
-              :expires_at => entry.expires_in.nil? ? Time.utc(9999) : now + entry.expires_in,
-              :compressed => entry.compressed?,
-              :serialized => serialize,
-              :value      => serialize ? BSON::Binary.new(entry.raw_value) : entry.value 
-            })
+            col.save(save_doc)
           rescue BSON::InvalidDocument => ex
-            serialize = true
-            retry if options[:serialize] == :on_fail and try_cnt < 1
+            if (options[:serialize] == :on_fail and try_cnt < 2)
+              save_doc[:serialized] = true
+              save_doc[:value] = BSON::Binary.new(entry.raw_value)
+              try_cnt += 1
+              retry 
+            end
           end
         end
       end
@@ -192,7 +198,6 @@ module MongoCacheStoreBackend
       super(key, options)
     end
 
-    
 
     private 
 
@@ -258,6 +263,65 @@ module MongoCacheStoreBackend
 
   end
 
+  # MongoCacheStoreBackend for standard collections 
+  #  
+  # == Standard collections 
+  #
+  module OneTTL
+    TTLExpireIn = 300
+
+    include Base
+
+    def clear(options = {})
+      col = get_collection(options) 
+      ret = safe_rescue do
+        col.remove
+      end
+      ret ? true : false
+    end
+
+    protected
+
+    def write_entry(key,entry,options)
+
+      # Forver is equal to 5 years
+      time_off = options[:expires_in].nil? ? 60*60*24*365*5 : options[:expires_in].to_i
+      time_off += MongoCacheStoreBackend::OneTTL::TTLExpireIn
+
+      # Set all time based entries here.
+      # This ensures all fields are based on the same Time
+      now = Time.now 
+      options[:xentry] = {
+        :created_at          => now,
+        :adjusted_created_at => now-time_off,
+        :expires_at          => entry.expires_in.nil? ? Time.utc(9999) : now + entry.expires_in
+      }
+
+      super(key,entry,options)
+    end
+
+
+    private 
+
+    def backend_name
+      "onettl"
+    end
+
+    def get_collection(options)
+      return @collection if @collection.is_a? Mongo::Collection
+      collection = super 
+      return collection unless collection.nil?
+
+      collection = @db[get_collection_name(options)]
+      collection.ensure_index('adjusted_created_at',{ expireAfterSeconds: MongoCacheStoreBackend::OneTTL::TTLExpireIn })
+      @collection = collection
+    end
+
+    def build_backend(options)
+
+    end
+
+  end
 
   # MongoCacheStoreBackend for standard collections 
   #  

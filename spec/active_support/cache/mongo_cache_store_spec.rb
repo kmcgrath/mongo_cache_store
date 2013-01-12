@@ -117,6 +117,22 @@ module ActiveSupport
         end
       end
 
+      describe "OneTTL Caching" do
+        it_behaves_like "a cache store" 
+        before(:all) do
+          db = Mongo::DB.new('mongo_cache_store_test', Mongo::Connection.new)
+          @store = ActiveSupport::Cache::MongoCacheStore.new(:OneTTL, db: db)
+        end
+      end
+
+      describe "OneTTL Caching Force Serialization" do
+        it_behaves_like "a cache store" 
+        before(:all) do
+          db = Mongo::DB.new('mongo_cache_store_test', Mongo::Connection.new)
+          @store = ActiveSupport::Cache::MongoCacheStore.new(:OneTTL, db: db, serialize: :always)
+        end
+      end
+
       describe "Standard Caching" do
         it_behaves_like "a cache store"
         before(:all) do
