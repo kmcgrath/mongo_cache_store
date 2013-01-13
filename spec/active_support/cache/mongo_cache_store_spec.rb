@@ -23,12 +23,17 @@ module ActiveSupport
         end
 
         it "can expire" do
-          @store.fetch 'fnord', expires_in: 10.seconds do 
+          @store.fetch 'fnord', expires_in: 2.minutes do 
             "I am vaguely disturbed."
           end
           @store.exist?("fnord").should == true
 
-          sleep 11 
+          sleep 60
+
+          response = @store.fetch 'fnord'
+          response.should == "I am vaguely disturbed."
+
+          sleep 120 
 
           response = @store.fetch 'fnord'
           response.should == nil
@@ -96,7 +101,7 @@ module ActiveSupport
     describe MongoCacheStore do
       describe "initializing" do
         it "can take a Mongo::DB object" do
-          db = Mongo::DB.new('mongo_store_test', Mongo::Connection.new)
+          db = Mongo::DB.new('mongo_cache_store_test', Mongo::Connection.new)
           store = ActiveSupport::Cache::MongoCacheStore.new(:TTL, db: db)
         end
       end
@@ -121,7 +126,7 @@ module ActiveSupport
         it_behaves_like "a cache store" 
         before(:all) do
           db = Mongo::DB.new('mongo_cache_store_test', Mongo::Connection.new)
-          @store = ActiveSupport::Cache::MongoCacheStore.new(:OneTTL, db: db)
+          @store = ActiveSupport::Cache::MongoCacheStore.new(:MultiTTL, db: db)
         end
       end
 
@@ -129,7 +134,7 @@ module ActiveSupport
         it_behaves_like "a cache store" 
         before(:all) do
           db = Mongo::DB.new('mongo_cache_store_test', Mongo::Connection.new)
-          @store = ActiveSupport::Cache::MongoCacheStore.new(:OneTTL, db: db, serialize: :always)
+          @store = ActiveSupport::Cache::MongoCacheStore.new(:MultiTTL, db: db, serialize: :always)
         end
       end
 
