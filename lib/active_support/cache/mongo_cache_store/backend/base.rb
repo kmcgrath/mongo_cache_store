@@ -51,17 +51,17 @@ module ActiveSupport
               col = get_collection(options)
               serialize = options[:serialize] == :always ? true : false
               try_cnt = 0
-              now = Time.now
 
               save_doc = {
                 :_id => key,
-                :created_at => now,
+                :created_at => Time.at(entry.created_at),
                 :expires_in => entry.expires_in,
-                :expires_at => entry.expires_in.nil? ? Time.utc(9999) : now + entry.expires_in,
+                :expires_at => entry.expires_in.nil? ? Time.utc(9999) : Time.at(entry.expires_at),
                 :compressed => entry.compressed?,
                 :serialized => serialize,
                 :value      => serialize ? BSON::Binary.new(entry.raw_value) : entry.value 
               }.merge(options[:xentry] || {})
+              #puts save_doc.inspect
 
               safe_rescue do
                 begin

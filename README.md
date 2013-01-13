@@ -19,12 +19,19 @@ MongoCacheStore ships with 4 backends, TTL, Capped, Standard and MultiTTL.
 
 Planned: GridFS
   * For very large entries.   Ex: Generate a large report (PDF, DOC, etc...), keep it around for a limited amount of time and have it automatically flush upon expiration.
-    
+
 
 The major difference between each backend involves how entries are flushed.  The core driver will always respect ActiveSupport's *:expires_in* parameter for hits and misses whether the entry has actually been flushed from the backend or not. 
 
 #### Core Options
-* db: A Mongo::DB instance
+From ActiveSupport
+* :namespace
+* :expires_in
+
+For MongoCacheStore
+* :db - A Mongo::DB instance
+* :db_name - Name of database to be created.  Only used if *db* is not set
+* :connection - A Mongo::Connection. Only used if *db* is not set. Defaults to Mongo::Connection.new()
 * serialize: (*:always*, :on\_fail, :never)
   * :always (default) - Serialize all entries
   * :on\_fail - Try to save the entry in a native MongoDB format.  If that fails, then serialize the entry. 

@@ -12,6 +12,7 @@ module ActiveSupport
         # == Standard collections 
         #
         module Standard
+          include Base
 
           def clear(options = {})
             col = get_collection(options) 

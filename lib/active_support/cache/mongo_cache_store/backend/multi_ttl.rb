@@ -51,7 +51,8 @@ module ActiveSupport
               indexed = safe_rescue do
                 ki.save({
                   :_id => key,
-                  :collection => options[:collection].name
+                  :collection => options[:collection].name,
+                  :expires_at => entry.expires_at
                 })
               end
             end
@@ -92,7 +93,9 @@ module ActiveSupport
             name_parts.push options[:namespace] unless options[:namespace].nil?
             name_parts.push 'key_index'
 
-            @db[name_parts.join('.')]
+            col = @db[name_parts.join('.')]
+            col.ensure_index('expires_at',{ expireAfterSeconds: 0})
+            return col
           end
 
           def get_collection_from_index(key,options)

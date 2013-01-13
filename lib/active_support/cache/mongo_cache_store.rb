@@ -11,13 +11,18 @@ module ActiveSupport
       def initialize (backend=:Standard, options = {})
        
         options = {
-          :db_name => 'mongo_cache',
+          :db_name => 'cache_store',
           :db => nil,
           :namespace => nil,
-          :serialize => :on_fail
+          :connection => nil,
+          :serialize => :always
         }.merge(options) 
 
         @db = options.delete :db
+
+        if (@db.nil?)
+          @db = Mongo::DB.new(options[:db_name], options[:connection] || Mongo::Connection.new)
+        end 
 
         extend ActiveSupport::Cache::MongoCacheStore::Backend.const_get(backend)
 
@@ -25,9 +30,6 @@ module ActiveSupport
 
         super(options)
 
-        if (@db.nil?)
-          #TODO 
-        end 
       end
     end
   end
