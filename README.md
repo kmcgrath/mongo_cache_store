@@ -6,6 +6,11 @@ A MongoDB cache store for ActiveSupport 3
 
 MongoCacheStore uses pluggable backends to expose MongoDB as a cache store to ActiveSupport applications.  Each backend allows the application to customize how the cache operates.  Support is available for standard, capped and TTL collections.
 
+*WARNING* This gem is in the early stages of development and should be treated as such.  Checking the version of the gem will help with what could be many changes to the backends, options, etc...
+
+While in beta, the major version will always be 0.  The minor version will be increased for anything that breaks the current API.  The patch version will be increased for all changes within a minor revision that add to or fix the currenr release without changing the how the gem is configured or used. 
+
+
 ## Backends
 
 A Backend controls how MongoDB collections are used and manipulated as a cache store.
