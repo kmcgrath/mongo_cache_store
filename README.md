@@ -8,7 +8,7 @@ MongoCacheStore uses pluggable backends to expose MongoDB as a cache store to Ac
 
 **WARNING** This gem is in the early stages of development and should be treated as such.  Checking the version of the gem will help with what could be many changes to the backends, options, etc...
 
-While in beta, the major version will always be 0.  The minor version will be increased for anything that breaks the current API.  The patch version will be increased for all changes within a minor revision that add to or fix the currenr release without changing the how the gem is configured or used. 
+While in beta, the major version will always be 0.  The minor version will be increased for anything that breaks the current API.  The patch version will be increased for all changes within a minor revision that add to or fix the current release without changing how the gem is configured or used. 
 
 
 ## Backends
@@ -16,6 +16,10 @@ While in beta, the major version will always be 0.  The minor version will be in
 A Backend controls how MongoDB collections are used and manipulated as a cache store.
 
 MongoCacheStore ships with 4 backends, TTL, Capped, Standard and MultiTTL.
+
+Planned: GridFS
+  * For very large entries.   Ex: Generate a large report (PDF, DOC, etc...), keep it around for a limited amount of time and have it automatically flush upon expiration.
+    
 
 The major difference between each backend involves how entries are flushed.  The core driver will always respect ActiveSupport's *:expires_in* parameter for hits and misses whether the entry has actually been flushed from the backend or not. 
 
