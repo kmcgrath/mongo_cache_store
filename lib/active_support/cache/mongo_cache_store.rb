@@ -10,7 +10,7 @@ module ActiveSupport
 
       # Initialize the cache
       #  
-      # == Attributes  
+      # === Attributes  
       #  
       # [+backend+ - Symbol representing the backend the cache should use] 
       #     :TTL | :Standard | :MultiTTL      
@@ -33,7 +33,7 @@ module ActiveSupport
       #         [+:never+ - Never serialize]
       #             Only save the entry if it can be saved natively by MongoDB.
       #
-      # == Examples
+      # === Examples
       #     @store = ActiveSupport::Cache::MongoCacheStore.new(:TTL, :db => Mongo::DB.new('db_name',Mongo::Connection.new))
       #
       #     @store = ActiveSupport::Cache::MongoCacheStore.new(:Standard, :db_name => 'db_name', :connection => Mongo::Connection.new)    

@@ -6,10 +6,22 @@ module ActiveSupport
   module Cache
     class MongoCacheStore
       module Backend
-        # MongoCacheStoreBackend for OneTTL collections 
-        #  
-        # == OneTTL collections 
+        # == TTL
         #
+        # TTL backend for MongoCacheStore
+        #
+        # === Description
+        #
+        # Entries are kept in a namespaced TTL collection that will 
+        # automatically flush any entries as they pass their expiration 
+        # time. This keeps the size of the cache in check over time. 
+        #
+        # <b>Requires MongoDB 2.0 or higher</b>
+        #
+        # === Additional Options
+        #
+        # No additional options at this time
+        # 
         module TTL
           include Base
 
