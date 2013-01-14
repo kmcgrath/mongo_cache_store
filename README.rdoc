@@ -29,7 +29,11 @@ configured or used.
 === Attributes  
  
 [+backend+ - Symbol representing the backend the cache should use] 
-    :TTL | :Standard | :MultiTTL      
+    :TTL:: ActiveSupport::Cache::MongoCacheStore::Backend::TTL
+    :Standard:: ActiveSupport::Cache::MongoCacheStore::Backend::Standard
+    :MultiTTL:: ActiveSupport::Cache::MongoCacheStore::Backend::MultiTTL
+    :Capped:: ActiveSupport::Cache::MongoCacheStore::Backend::Capped
+
  [+options+ - Options for ActiveSupport::Cache and the backend] 
     Core options are listed here.  See each backend for a list of additional optons. 
     [+:db+ - A Mongo::DB instance.]
