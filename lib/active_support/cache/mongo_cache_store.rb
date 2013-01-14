@@ -8,6 +8,36 @@ module ActiveSupport
 
     class MongoCacheStore < Store
 
+      # Initialize the cache
+      #  
+      # == Attributes  
+      #  
+      # [+backend+ - Symbol representing the backend the cache should use] 
+      #     :TTL | :Standard | :MultiTTL      
+      #
+      # [+options+ - Options for ActiveSupport::Cache and the backend] 
+      #     Core options are listed here.  See each backend for a list of additional optons. 
+      #     [+:db+ - A Mongo::DB instance.]
+      #     [+:db_name+ - Name of database to create if no 'db' is given.] 
+      #     [+:connection+ - A Mongo::Connection instance. Only used if no 'db' is given.] 
+      #     [+:serialize+ - *:always* | :on_fail | :never]
+      #         [+:always+ - (default) - Serialize all entries]
+      #             *NOTE* Without serialization class structures and instances that cannot 
+      #             be converted to a native MongoDB type will not be stored.  Also, 
+      #             without serialization MongoDB converts all symbols to strings.  
+      #             Therefore a hash with symbols as keys will have strings as keys when read. 
+      #
+      #         [+:on_fail+ - Serialize if native format fails]
+      #             Try to save the entry in a native MongoDB format.  If that fails, 
+      #             then serialize the entry. 
+      #         [+:never+ - Never serialize]
+      #             Only save the entry if it can be saved natively by MongoDB.
+      #
+      # == Examples
+      #     @store = ActiveSupport::Cache::MongoCacheStore.new(:TTL, :db => Mongo::DB.new('db_name',Mongo::Connection.new))
+      #
+      #     @store = ActiveSupport::Cache::MongoCacheStore.new(:Standard, :db_name => 'db_name', :connection => Mongo::Connection.new)    
+        
       def initialize (backend=:Standard, options = {})
        
         options = {

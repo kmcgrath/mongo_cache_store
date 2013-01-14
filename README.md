@@ -10,6 +10,12 @@ MongoCacheStore uses pluggable backends to expose MongoDB as a cache store to Ac
 
 While in beta, the major version will always be 0.  The minor version will be increased for anything that breaks the current API.  The patch version will be increased for all changes within a minor revision that add to or fix the current release without changing how the gem is configured or used. 
 
+## Usage Examples
+
+    config.cache_store = :mongo_cache_store, :TTL, :db => Mongo::DB.new('db_name',Mongo::Connection.new)
+
+    config.cache_store = :mongo_cache_store, :Standard, :db_name => 'db_name', :connection => Mongo::Connection.new, :serialize => :on_fail
+
 
 ## Backends
 
