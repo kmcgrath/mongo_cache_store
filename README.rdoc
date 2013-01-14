@@ -88,11 +88,13 @@ The following options can be added to a MongoCacheStore constructor
     To see a list of core options see MongoCacheStore
     [+:auto_flush+ - *true* | false]
         Default: true
+        
         If auto_flush is enabled the cache will flush all 
         expired entries when auto\_flush\_threshold
         is reached.
     [+:auto_flush_threshold+ - *10_000*] 
         Default: 10_000
+
         A number representing the number of writes the when the cache 
         should preform before flushing expired entries.
 
