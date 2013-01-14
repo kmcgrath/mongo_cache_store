@@ -6,10 +6,25 @@ module ActiveSupport
   module Cache
     class MongoCacheStore
       module Backend
-        # MongoCacheStoreBackend for capped collections 
-        #  
-        # == Capped Collections
+        # == Capped
+        # 
+        # *Experimental*
         #
+        # Capped backend for MongoCacheStore
+        #
+        # === Description
+        # *Experimental* do not use... yet.
+        # 
+        # This should only be used if limiting the size of the cache 
+        # is of great concern.  Entries are flushed from the cache on 
+        # a FIFO basis, regardless of the entries expiration time.  
+        # Delete operations set an entry to expired, but it will not 
+        # be flushed until it is automatically removed by MongoDB.
+        #  
+        # === Options
+        #
+        # TODO
+        # 
         module Capped
           include Base
 

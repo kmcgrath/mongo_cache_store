@@ -7,9 +7,35 @@ module ActiveSupport
   module Cache
     class MongoCacheStore
       module Backend
-        # MongoCacheStoreBackend for standard collections 
+        # == Standard 
+        #
+        # Standard backend for MongoCacheStore
         #  
-        # == Standard collections 
+        # === Description
+        #
+        # Entreis are kept in a namespaced MongoDB collection. In a standard 
+        # collection entries are only flushed from the collection with an 
+        # explicit delete call or if auto_flush is enabled.  If auto_flush is 
+        # enabled the cache will flush all expired entries when auto\_flush\_threshold 
+        # is reached.  The threshold is based on a set number of cache instance writes. 
+        #
+        # === Additional Options  
+        #  
+        # The following options can be added to a MongoCacheStore constructor
+        #
+        # [+options+ - Standard backend options] 
+        #     To see a list of core options see MongoCacheStore
+        #     [+:auto_flush+ - *true* | false]
+        #         Default: true
+        #
+        #         If auto_flush is enabled the cache will flush all 
+        #         expired entries when auto\_flush\_threshold
+        #         is reached.
+        #     [+:auto_flush_threshold+ - *10_000*] 
+        #         Default: 10_000
+        #
+        #         A number representing the number of writes the when the cache 
+        #         should preform before flushing expired entries.
         #
         module Standard
           include Base

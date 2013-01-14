@@ -7,9 +7,43 @@ module ActiveSupport
   module Cache
     class MongoCacheStore
       module Backend
-        # MongoCacheStoreBackend for TTL collections 
+        # == MultiTTL 
+        #
+        # MultiTTL backend for MongoCacheStore
         #  
-        # == Time To Live (TTL) collections 
+        # === Description
+        #
+        # Entries are stored in multiple namespaced TTL collections. 
+        # A namespaced TTL collection is created for each unique expiration time.  
+        # For example all entries with an expiration time of 300 seconds will be 
+        # kept in the same collection while entries with a 900 second expiration 
+        # time will be kept in another.  This requires the use of a *key index* 
+        # collection that keeps track of which TTL collection a entry resides in. 
+        #
+        # ==== Downsides
+        # * Cache set operations require 2 MongoDB write calls.  
+        #   One for the key index, one for the TTL collection. 
+        #   (unless *use_index* is false, see below)
+        # * Cache read operations will require 1 or 2 MongoDB calls 
+        #   depending on whether the 'expires_in' option is set for the read.
+        #
+        # ==== Benefits (future)
+        # * Ability to flush cache based on expire time (TODO)
+        #
+        #
+        # === Additional Options  
+        #  
+        # The following options can be added to a MongoCacheStore constructor
+        #
+        # [+options+ - MultiTTL backend options] 
+        #     To see a list of core options see MongoCacheStore
+        #     [+:use_index+ - *true* | false]
+        #         Default: true
+        #
+        #         This should only be set to *false* if all fetch and/or read 
+        #         operations are passed the *:expires_in* option.  If so, this 
+        #         will eliminate the need for the key index collection and only 
+        #         one write and one read operation is necessary. 
         #
         module MultiTTL
           include Base
