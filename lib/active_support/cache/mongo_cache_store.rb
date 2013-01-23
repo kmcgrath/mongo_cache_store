@@ -2,6 +2,7 @@
 require "mongo_cache_store/version"
 require "mongo"
 require "active_support/cache"
+require "logger"
 
 module ActiveSupport
   module Cache
@@ -32,6 +33,10 @@ module ActiveSupport
       #             then serialize the entry. 
       #         [+:never+ - Never serialize]
       #             Only save the entry if it can be saved natively by MongoDB.
+      #     [+:collection_opts+ ]
+      #         Hash of options passed directly to MongoDB::Collection.
+      #           
+      #         Useful for write conditions and read preferences
       #
       # === Examples
       #     @store = ActiveSupport::Cache::MongoCacheStore.new(:TTL, :db => Mongo::DB.new('db_name',Mongo::Connection.new))
@@ -45,14 +50,18 @@ module ActiveSupport
           :db => nil,
           :namespace => nil,
           :connection => nil,
-          :serialize => :always
+          :serialize => :always,
+          :collection_opts => {}
         }.merge(options) 
 
         @db = options.delete :db
+        @logger = options.delete :logger
 
         if (@db.nil?)
           @db = Mongo::DB.new(options[:db_name], options[:connection] || Mongo::Connection.new)
         end 
+
+
 
         extend ActiveSupport::Cache::MongoCacheStore::Backend.const_get(backend)
 
@@ -61,6 +70,23 @@ module ActiveSupport
         super(options)
 
       end
+
+      def logger
+        return @logger unless @logger.nil?
+
+        slogger = super
+        case
+        when !slogger.nil?
+          @logger = slogger
+        when defined?(Rails) && Rails.logger
+          @logger = Rails.logger
+        else
+          @logger = Logger.new(STDOUT)
+        end
+      
+        @logger
+      end
+  
     end
   end
 end
