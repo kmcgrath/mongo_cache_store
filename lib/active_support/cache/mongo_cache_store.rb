@@ -2,6 +2,7 @@
 require "mongo_cache_store/version"
 require "mongo"
 require "active_support/cache"
+require "logger"
 
 module ActiveSupport
   module Cache
@@ -49,10 +50,13 @@ module ActiveSupport
         }.merge(options) 
 
         @db = options.delete :db
+        @logger = options.delete :logger
 
         if (@db.nil?)
           @db = Mongo::DB.new(options[:db_name], options[:connection] || Mongo::Connection.new)
         end 
+
+
 
         extend ActiveSupport::Cache::MongoCacheStore::Backend.const_get(backend)
 
@@ -61,6 +65,23 @@ module ActiveSupport
         super(options)
 
       end
+
+      def logger
+        return @logger unless @logger.nil?
+
+        slogger = super
+        case
+        when !slogger.nil?
+          @logger = slogger
+        when defined?(Rails) && Rails.logger
+          @logger = Rails.logger
+        else
+          @logger = Logger.new(STDOUT)
+        end
+      
+        @logger
+      end
+  
     end
   end
 end

@@ -100,7 +100,7 @@ module ActiveSupport
                 yield
               rescue => e
                 warn e
-                logger.error("FileStoreError (#{e}): #{e.message}") if logger 
+                logger.error("MongoCacheStoreError (#{e}): #{e.message}") if logger 
                 false
               end
             end
