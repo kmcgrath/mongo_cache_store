@@ -61,7 +61,6 @@ module ActiveSupport
                 :serialized => serialize,
                 :value      => serialize ? BSON::Binary.new(entry.raw_value) : entry.value 
               }.merge(options[:xentry] || {})
-              #puts save_doc.inspect
 
               safe_rescue do
                 begin
@@ -88,7 +87,8 @@ module ActiveSupport
               name_parts = ['cache'] 
               name_parts.push(backend_name)
               name_parts.push options[:namespace] unless options[:namespace].nil?
-              return name_parts.join('.')
+              name = name_parts.join('.')
+              return name
             end
 
             def get_collection(options)

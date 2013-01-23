@@ -154,6 +154,25 @@ module ActiveSupport
             @store = ActiveSupport::Cache::MongoCacheStore.new(:Standard, :db => db, :serialize => :on_fail)
           end
         end
+
+        describe "Pass Collection Options" do
+          before(:all) do
+            db = Mongo::DB.new('mongo_cache_store_test', Mongo::Connection.new)
+            @store = ActiveSupport::Cache::MongoCacheStore.new(
+              :Standard, 
+              :db => db, 
+              :collection_opts => {
+                :read => :nearest
+              }
+            )
+          end
+
+          it "can set collection opts" do
+            col = @store.send(:get_collection,{:collection_opts => {:read => :nearest}})
+            col.instance_eval { @read }.should == :nearest
+          end
+
+        end
       end
     end
   end

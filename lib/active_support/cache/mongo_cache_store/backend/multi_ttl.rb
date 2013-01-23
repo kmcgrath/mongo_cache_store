@@ -142,7 +142,7 @@ module ActiveSupport
             col.ensure_index('expires_at',{ expireAfterSeconds: 0})
             return col
           end
-          
+
 
           def get_collection_from_index(key,options)
             if (options[:use_index])
