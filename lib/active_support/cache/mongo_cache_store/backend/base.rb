@@ -61,7 +61,6 @@ module ActiveSupport
                 :serialized => serialize,
                 :value      => serialize ? BSON::Binary.new(entry.raw_value) : entry.value 
               }.merge(options[:xentry] || {})
-              #puts save_doc.inspect
 
               safe_rescue do
                 begin
@@ -88,11 +87,14 @@ module ActiveSupport
               name_parts = ['cache'] 
               name_parts.push(backend_name)
               name_parts.push options[:namespace] unless options[:namespace].nil?
-              return name_parts.join('.')
+              name = name_parts.join('.')
+              return name
             end
 
             def get_collection(options)
               return options[:collection] if options[:collection].is_a? Mongo::Collection
+
+              @db.collection(get_collection_name(options),options[:collection_opts])
             end
 
             def safe_rescue
@@ -100,7 +102,7 @@ module ActiveSupport
                 yield
               rescue => e
                 warn e
-                logger.error("FileStoreError (#{e}): #{e.message}") if logger 
+                logger.error("MongoCacheStoreError (#{e}): #{e.message}") if logger 
                 false
               end
             end

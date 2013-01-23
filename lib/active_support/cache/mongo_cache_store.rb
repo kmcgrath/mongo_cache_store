@@ -45,7 +45,8 @@ module ActiveSupport
           :db => nil,
           :namespace => nil,
           :connection => nil,
-          :serialize => :always
+          :serialize => :always,
+          :collection_opts => {}
         }.merge(options) 
 
         @db = options.delete :db

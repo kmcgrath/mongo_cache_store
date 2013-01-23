@@ -54,9 +54,6 @@ module ActiveSupport
             "standard"
           end
 
-          def get_collection(options)
-            @db[get_collection_name(options)]
-          end
 
           def write_entry(key, entry, options)
             ret = super
