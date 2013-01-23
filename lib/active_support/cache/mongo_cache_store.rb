@@ -33,6 +33,10 @@ module ActiveSupport
       #             then serialize the entry. 
       #         [+:never+ - Never serialize]
       #             Only save the entry if it can be saved natively by MongoDB.
+      #     [+:collection_opts]
+      #         Hash of options passed directly to MongoDB::Collection.
+      #           
+      #         Useful for write conditions and read preferences
       #
       # === Examples
       #     @store = ActiveSupport::Cache::MongoCacheStore.new(:TTL, :db => Mongo::DB.new('db_name',Mongo::Connection.new))
