@@ -48,8 +48,6 @@ module ActiveSupport
         module MultiTTL
           include Base
 
-          alias :get_collection_prefix :get_collection_name
-
           def clear(options = {})
             @db.collection_names.each do |cname|
               prefix = get_collection_prefix
@@ -86,6 +84,7 @@ module ActiveSupport
                 ki.save({
                   :_id => key,
                   :collection => options[:collection].name,
+                  :expires_in => options[:expires_in].nil? ? nil : options[:expires_in].to_i,
                   :expires_at => entry.expires_at
                 })
               end
@@ -101,24 +100,36 @@ module ActiveSupport
 
           private 
 
+          alias :super_get_collection_name :get_collection_name
+
           def backend_name
             "multi_ttl"
           end
 
+
           def get_collection(options)
 
-            col = super 
+            col = @collection_map[get_collection_name(options)]
             return col unless col.nil?
 
+            col = super
+            expires_in = options[:expires_in]
+            col.ensure_index('created_at',{ expireAfterSeconds: expires_in.to_i }) unless expires_in.nil?
+            @collection_map[col.name] = col
+
+            return col
+          end
+
+          def get_collection_name(options)
             name_parts = [get_collection_prefix(options)]
             expires_in = options[:expires_in]
             name_parts.push expires_in.nil? ? 'forever' : expires_in.to_i
             collection_name = name_parts.join('.')
+            return collection_name
+          end
 
-            collection = @collection_map[collection_name]
-
-            collection ||= create_collection(collection_name, expires_in) 
-            return collection
+          def get_collection_prefix(options = {})
+            super_get_collection_name(options)
           end
 
 
@@ -131,6 +142,7 @@ module ActiveSupport
             col.ensure_index('expires_at',{ expireAfterSeconds: 0})
             return col
           end
+          
 
           def get_collection_from_index(key,options)
             if (options[:use_index])
@@ -142,18 +154,13 @@ module ActiveSupport
                 })
                 return nil if response.nil?
 
-                return @db[response['collection']]
+                options[:expires_in] = response['expires_in']
+                return get_collection(options)
               end
             end
             nil
           end
 
-
-          def create_collection(name, expires_in)
-            collection = @db[name]
-            collection.ensure_index('created_at',{ expireAfterSeconds: expires_in.to_i }) unless expires_in.nil?
-            return collection
-          end
 
           def build_backend(options)
             options.replace({

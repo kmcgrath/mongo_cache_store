@@ -93,6 +93,8 @@ module ActiveSupport
 
             def get_collection(options)
               return options[:collection] if options[:collection].is_a? Mongo::Collection
+
+              @db.collection(get_collection_name(options),options[:collection_opts])
             end
 
             def safe_rescue
@@ -100,7 +102,7 @@ module ActiveSupport
                 yield
               rescue => e
                 warn e
-                logger.error("FileStoreError (#{e}): #{e.message}") if logger 
+                logger.error("MongoCacheStoreError (#{e}): #{e.message}") if logger 
                 false
               end
             end
