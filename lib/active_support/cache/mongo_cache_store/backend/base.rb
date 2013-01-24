@@ -94,7 +94,7 @@ module ActiveSupport
             def get_collection(options)
               return options[:collection] if options[:collection].is_a? Mongo::Collection
 
-              @db.collection(get_collection_name(options),options[:collection_opts])
+              @db.collection(get_collection_name(options),options[:collection_opts] || {})
             end
 
             def safe_rescue

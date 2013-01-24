@@ -45,6 +45,7 @@ module ActiveSupport
             ret = safe_rescue do
               col.remove
             end
+            @collection = nil
             ret ? true : false
           end
 
