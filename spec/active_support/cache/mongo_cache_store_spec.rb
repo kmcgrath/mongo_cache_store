@@ -29,7 +29,7 @@ module ActiveSupport
             end
             @store.exist?("testkey").should == true
 
-            sleep 60
+            sleep 60 
 
             response = @store.fetch 'testkey'
             response.should == "I will expire."
@@ -93,7 +93,7 @@ module ActiveSupport
           end
 
           after(:all) do
-            @store.clear
+            @store.clear.should == true
           end 
         end
       end
