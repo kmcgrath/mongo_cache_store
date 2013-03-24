@@ -56,6 +56,20 @@ configured or used.
         Useful for write conditions and read preferences
 
 
+== Increment / Decrement
+
+Must be an Integer [TODO]
+
+
+== Keys can be a Hash
+
+[TODO]
+
+    def test_hash_as_cache_key
+      @cache.write({:foo => 1, :fu => 2}, "bar")
+      assert_equal "bar", @cache.read("foo=1/fu=2")
+    end
+
 == Backends
 
 == TTL
@@ -67,7 +81,7 @@ TTL backend for MongoCacheStore
 Entries are kept in a namespaced TTL collection that will 
 automatically flush any entries as they pass their expiration 
 time. This keeps the size of the cache in check over time. 
-<b>Requires MongoDB 2.0 or higher</b>
+<b>Requires MongoDB 2.2 or higher</b>
 
 === Additional Options
 
