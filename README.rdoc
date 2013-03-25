@@ -58,17 +58,22 @@ configured or used.
 
 == Increment / Decrement
 
-Must be an Integer [TODO]
+Increment and decrement values must be an Integer.  In the ActiveSupport test
+suite strings and integers are used interchangeably.  This cache store however
+uses MongoDB's $inc operator which must, be an integer.  
 
 
 == Keys can be a Hash
 
-[TODO]
+The following test from ActiveSupport fails with MongoCacheStore:
 
     def test_hash_as_cache_key
       @cache.write({:foo => 1, :fu => 2}, "bar")
       assert_equal "bar", @cache.read("foo=1/fu=2")
     end
+
+This is because a key can be a true Hash.  It will not be converted to a string.
+
 
 == Backends
 
