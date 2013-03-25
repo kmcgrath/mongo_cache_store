@@ -9,7 +9,7 @@ require_relative 'test_modules'
 class MongoCacheStoreTTLTest < ActiveSupport::TestCase
   def setup
     @cache = ActiveSupport::Cache.lookup_store(
-      :mongo_cache_store, :TTL, 
+      :mongo_cache_store, :Standard, 
       :db => Mongo::DB.new('db_name',Mongo::Connection.new),
       :expires_in => 60
     )

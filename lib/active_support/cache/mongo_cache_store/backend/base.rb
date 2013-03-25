@@ -8,11 +8,11 @@ module ActiveSupport
         module Base 
 
 
-          def increment(name, amount = 1, options = nil)
+          def increment(name, amount = 1, options = {})
             write_counter(name,amount.to_i,options)
           end
 
-          def decrement(name, amount = 1, options = nil)
+          def decrement(name, amount = 1, options = {})
             write_counter(name,amount.to_i*-1,options)
           end
 
@@ -180,7 +180,7 @@ module ActiveSupport
             def get_collection_name(options = {})
               name_parts = ['cache'] 
               name_parts.push(backend_name)
-              name_parts.push options[:namespace] unless options[:namespace].nil?
+              name_parts.push options[:namespace] if !options[:namespace].nil?
               name = name_parts.join('.')
               return name
             end
