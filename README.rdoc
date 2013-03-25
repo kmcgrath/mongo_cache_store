@@ -56,6 +56,25 @@ configured or used.
         Useful for write conditions and read preferences
 
 
+== Increment / Decrement
+
+Increment and decrement values must be an Integer.  In the ActiveSupport test
+suite strings and integers are used interchangeably.  This cache store however
+uses MongoDB's $inc operator which must, be an integer.  
+
+
+== Keys can be a Hash
+
+The following test from ActiveSupport fails with MongoCacheStore:
+
+    def test_hash_as_cache_key
+      @cache.write({:foo => 1, :fu => 2}, "bar")
+      assert_equal "bar", @cache.read("foo=1/fu=2")
+    end
+
+This is because a key can be a true Hash.  It will not be converted to a string.
+
+
 == Backends
 
 == TTL
@@ -67,7 +86,7 @@ TTL backend for MongoCacheStore
 Entries are kept in a namespaced TTL collection that will 
 automatically flush any entries as they pass their expiration 
 time. This keeps the size of the cache in check over time. 
-<b>Requires MongoDB 2.0 or higher</b>
+<b>Requires MongoDB 2.2 or higher</b>
 
 === Additional Options
 

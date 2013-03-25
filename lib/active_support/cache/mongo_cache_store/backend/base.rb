@@ -7,15 +7,70 @@ module ActiveSupport
         # Base methods used by all MongoCacheStore backends 
         module Base 
 
-          # No public methods are defined for this module
+
+          def increment(name, amount = 1, options = {})
+            write_counter(name,amount.to_i,options)
+          end
+
+          def decrement(name, amount = 1, options = {})
+            write_counter(name,amount.to_i*-1,options)
+          end
+
+          def read_multi(*names)
+            options = names.extract_options!
+            options = merged_options(options)
+            results = {}
+             
+            col = get_collection(options)
+
+            key_map = names.inject({}) do |h, name|
+              h[namespaced_key(name,options)] = name
+              h
+            end
+
+            safe_rescue do 
+              query = {
+                :_id => { '$in' => key_map.keys},
+                :expires_at => {
+                  '$gt' => Time.now 
+                }
+              }
+
+              col.find(query) do |cursor|
+                cursor.each do |r| 
+                  results[key_map[r['_id']]] = inflate_entry(r).value
+                  puts results.inspect
+                end
+              end
+            end
+
+            results
+          end
 
           private 
 
-            def expand_key(key)
-              return key 
+            def expanded_key(key)
+              return key.cache_key.to_s if key.respond_to?(:cache_key)
+
+              case key
+              when Array
+                if key.size > 1
+                  key = key.collect{|element| expanded_key(element)}
+                else
+                  key = key.first
+                end
+              when Hash
+                return key 
+              end
+
+              key.to_param
             end
 
             def namespaced_key(key, options)
+              key = expanded_key(key)
+              key = key.join('/') if key.is_a?(Array)
+              key = key.cache_key if key.methods.include?(:cache_key)
+
               return key 
             end
 
@@ -31,25 +86,62 @@ module ActiveSupport
                 }
 
                 response = col.find_one(query)
-                return nil if response.nil?
-
-                entry_options = {
-                  :compressed => response[:compressed],
-                  :expires_in => response[:expires_in] 
-                }
-                if response['serialized']
-                  r_value = response['value'].to_s
-                else
-                  r_value = Marshal.dump(response['value'])
-                end
-                ActiveSupport::Cache::Entry.create(r_value,response[:created_at],entry_options)
+                return inflate_entry(response)
               end
+              nil
             end
 
+
+            def inflate_entry(from_mongo)
+                return nil if from_mongo.nil?
+
+                entry_options = {
+                  :compressed => from_mongo['compressed'],
+                  :expires_in => from_mongo['expires_in'] 
+                }
+                if from_mongo['serialized']
+                  r_value = from_mongo['value'].to_s
+                else
+                  r_value = Marshal.dump(from_mongo['value'])
+                end
+                ActiveSupport::Cache::Entry.create(r_value,from_mongo['created_at'],entry_options)              
+            end
+
+            def write_counter(name, amount, options)
+              col = get_collection(options)
+              key = namespaced_key(name,options) 
+
+              safe_rescue do
+                doc = col.find_and_modify(
+                  :query => {
+                    :_id => key
+                  },
+                  :update => {
+                    :$inc => {
+                      :value => amount
+                    }
+                  }
+                )
+
+                doc['value'] + amount
+              end
+            end
 
             def write_entry(key,entry,options)
               col = get_collection(options)
               serialize = options[:serialize] == :always ? true : false
+              serialize = false if entry.value.is_a?(Integer) || entry.value.nil?
+
+              value = begin 
+                if entry.compressed?
+                  BSON::Binary.new(entry.raw_value)
+                elsif serialize 
+                  BSON::Binary.new(entry.raw_value)
+                else
+                  entry.value
+                end
+              end
+
               try_cnt = 0
 
               save_doc = {
@@ -59,7 +151,7 @@ module ActiveSupport
                 :expires_at => entry.expires_in.nil? ? Time.utc(9999) : Time.at(entry.expires_at),
                 :compressed => entry.compressed?,
                 :serialized => serialize,
-                :value      => serialize ? BSON::Binary.new(entry.raw_value) : entry.value 
+                :value => value 
               }.merge(options[:xentry] || {})
 
               safe_rescue do
@@ -74,7 +166,9 @@ module ActiveSupport
                   end
                 end
               end
+
             end
+
 
             def delete_entry(key,options)
               col = get_collection(options)
@@ -86,7 +180,7 @@ module ActiveSupport
             def get_collection_name(options = {})
               name_parts = ['cache'] 
               name_parts.push(backend_name)
-              name_parts.push options[:namespace] unless options[:namespace].nil?
+              name_parts.push options[:namespace] if !options[:namespace].nil?
               name = name_parts.join('.')
               return name
             end
