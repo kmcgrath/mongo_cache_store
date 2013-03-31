@@ -1,71 +1,265 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
-    <meta charset='utf-8'>
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <title>Mongo cache store by kmcgrath</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <title>Mongo cache store by kmcgrath</title>
   </head>
-
   <body>
-    <div id="container">
-      <div class="inner">
+    <div class="wrapper">
+      <header>
+        <h1 class="header">Mongo cache store</h1>
+        <p class="header">ActiveSupport cache using MongoDB</p>
 
-        <header>
-          <h1>Mongo cache store</h1>
-          <h2>ActiveSupport cache using MongoDB</h2>
-        </header>
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/kmcgrath/mongo_cache_store/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/kmcgrath/mongo_cache_store/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/kmcgrath/mongo_cache_store">View On GitHub</a></li>
+        </ul>
 
-        <section id="downloads" class="clearfix">
-          <a href="https://github.com/kmcgrath/mongo_cache_store/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
-          <a href="https://github.com/kmcgrath/mongo_cache_store/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
-          <a href="https://github.com/kmcgrath/mongo_cache_store" id="view-on-github" class="button"><span>View on GitHub</span></a>
-        </section>
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/kmcgrath">kmcgrath</a></p>
 
-        <hr>
 
-        <section id="main_content">
-          <h3>Welcome to GitHub Pages.</h3>
+      </header>
+      <section>
+        <h1>MongoCacheStore</h1>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+<p>A MongoDB cache store for ActiveSupport 3</p>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
+<h2>Description</h2>
+
+<p>MongoCacheStore uses pluggable backends to expose MongoDB 
+as a cache store to ActiveSupport applications.  Each backend 
+allows the application to customize how the cache operates.<br>
+Support is available for standard, capped and TTL collections.</p>
+
+<h2>Initialize the cache</h2>
+
+<h3>Usage</h3>
+
+<pre><code>config.cache_store = :mongo_cache_store, :TTL, :db =&gt; Mongo::DB.new('db_name',Mongo::Connection.new)
+config.cache_store = :mongo_cache_store, :Standard, :db_name =&gt; 'db_name', :connection =&gt; Mongo::Connection.new, :serialize =&gt; :on_fail
 </code></pre>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+<h3>Attributes</h3>
 
-<h3>Designer Templates</h3>
+<h4>backend</h4>
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+<p>Symbol representing the backend the cache should use </p>
 
-<h3>Rather Drive Stick?</h3>
+<ul>
+<li>
+<em>:TTL</em> - ActiveSupport::Cache::MongoCacheStore::Backend::TTL</li>
+<li>
+<em>:Standard</em> - ActiveSupport::Cache::MongoCacheStore::Backend::Standard</li>
+<li>
+<em>:MultiTTL</em> - ActiveSupport::Cache::MongoCacheStore::Backend::MultiTTL</li>
+<li>
+<em>:Capped</em> - ActiveSupport::Cache::MongoCacheStore::Backend::Capped</li>
+</ul><h4>options</h4>
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+<p>Options for ActiveSupport::Cache and the backend] </p>
 
-<h3>Authors and Contributors</h3>
+<p>Core options are listed here.  See each backend for a list of additional optons. </p>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<ul>
+<li>:db* - A Mongo::DB instance.]</li>
+<li>:db_name* - Name of database to create if no 'db' is given.] </li>
+<li>:connection* - A Mongo::Connection instance. Only used if no 'db' is given.] </li>
+<li>
+<p>:serialize* - <em>:always</em> | :on_fail | :never]</p>
 
-<h3>Support or Contact</h3>
+<ul>
+<li>
+<p>:always* - (default) - Serialize all entries]</p>
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
-        </section>
+<blockquote>
+<p><em>NOTE</em> Without serialization class structures and instances that cannot 
+be converted to a native MongoDB type will not be stored.  Also, 
+without serialization MongoDB converts all symbols to strings.  </p>
 
-        <footer>
-          Mongo cache store is maintained by <a href="https://github.com/kmcgrath">kmcgrath</a><br>
-          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.
-        </footer>
+<p>Therefore a hash with symbols as keys will have strings as keys when read.</p>
+</blockquote>
+</li>
+<li>
+<p><em>:on_fail</em> - Serialize if native format fails]</p>
 
-        
-      </div>
+<blockquote>
+<p>Try to save the entry in a native MongoDB format.  If that fails, 
+then serialize the entry. </p>
+</blockquote>
+</li>
+<li>
+<p><em>:never</em> - Never serialize</p>
+
+<blockquote>
+<p>Only save the entry if it can be saved natively by MongoDB.</p>
+</blockquote>
+</li>
+<li>
+<p><em>:collection_opts</em></p>
+
+<blockquote>
+<p>Hash of options passed directly to MongoDB::Collection.</p>
+
+<p>Useful for write conditions and read preferences</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul><h2>Increment / Decrement</h2>
+
+<p>Increment and decrement values must be an Integer.  In the ActiveSupport test
+suite strings and integers are used interchangeably.  This cache store however
+uses MongoDB's $inc operator which must, be an integer.  </p>
+
+<h2>Keys can be a Hash</h2>
+
+<p>The following test from ActiveSupport fails with MongoCacheStore:</p>
+
+<pre><code>def test_hash_as_cache_key
+  @cache.write({:foo =&gt; 1, :fu =&gt; 2}, "bar")
+  assert_equal "bar", @cache.read("foo=1/fu=2")
+end
+</code></pre>
+
+<p>This is because a key can be a true Hash.  It will not be converted to a string.</p>
+
+<h2>Backends</h2>
+
+<h2>TTL</h2>
+
+<p>TTL backend for MongoCacheStore</p>
+
+<h3>Description</h3>
+
+<p>Entries are kept in a namespaced TTL collection that will 
+automatically flush any entries as they pass their expiration 
+time. This keeps the size of the cache in check over time. </p>
+
+<p><b>Requires MongoDB 2.2 or higher</b></p>
+
+<h3>Additional Options</h3>
+
+<p>No additional options at this time</p>
+
+<h2>Standard</h2>
+
+<p>Standard backend for MongoCacheStore</p>
+
+<h3>Description</h3>
+
+<p>Entreis are kept in a namespaced MongoDB collection. In a standard 
+collection entries are only flushed from the collection with an 
+explicit delete call or if auto_flush is enabled.  If auto_flush is 
+enabled the cache will flush all expired entries when auto_flush_threshold 
+is reached.  The threshold is based on a set number of cache instance writes. </p>
+
+<h3>Additional Options</h3>
+
+<p>The following options can be added to a MongoCacheStore constructor</p>
+
+<p>To see a list of core options see MongoCacheStore</p>
+
+<ul>
+<li>
+<p><em>:auto_flush</em> - <em>true</em> | false</p>
+
+<blockquote>
+<p>Default: true</p>
+
+<p>If auto_flush is enabled the cache will flush all 
+  expired entries when auto_flush_threshold
+  is reached.</p>
+</blockquote>
+</li>
+<li>
+<p><em>:auto_flush_threshold</em> - <em>10_000</em> </p>
+
+<blockquote>
+<p>Default: 10_000</p>
+
+<p>A number representing the number of writes the when the cache 
+  should preform before flushing expired entries.</p>
+</blockquote>
+</li>
+</ul><h2>MultiTTL</h2>
+
+<p>MultiTTL backend for MongoCacheStore</p>
+
+<h3>Description</h3>
+
+<p>Entries are stored in multiple namespaced TTL collections. 
+A namespaced TTL collection is created for each unique expiration time.<br>
+For example all entries with an expiration time of 300 seconds will be 
+kept in the same collection while entries with a 900 second expiration 
+time will be kept in another.  This requires the use of a <em>key index</em> 
+collection that keeps track of which TTL collection a entry resides in. </p>
+
+<h4>Downsides</h4>
+
+<ul>
+<li>Cache set operations require 2 MongoDB write calls.<br>
+One for the key index, one for the TTL collection. 
+(unless <em>use_index</em> is false, see below)</li>
+<li>Cache read operations will require 1 or 2 MongoDB calls 
+depending on whether the 'expires_in' option is set for the read.</li>
+</ul><h4>Benefits (future)</h4>
+
+<ul>
+<li>Ability to flush cache based on expire time (TODO)</li>
+</ul><h3>Additional Options</h3>
+
+<p>The following options can be added to a MongoCacheStore constructor</p>
+
+<p>To see a list of core options see MongoCacheStore</p>
+
+<ul>
+<li>
+<p><em>:use_index</em> - <em>true</em> | false</p>
+
+<blockquote>
+<p>Default: true</p>
+
+<p>This should only be set to <em>false</em> if all fetch and/or read 
+operations are passed the <em>:expires_in</em> option.  If so, this 
+will eliminate the need for the key index collection and only 
+one write and one read operation is necessary. </p>
+</blockquote>
+</li>
+</ul><h2>Capped</h2>
+
+<p><em>Experimental</em></p>
+
+<p>Capped backend for MongoCacheStore</p>
+
+<h3>Description</h3>
+
+<p><em>Experimental</em> do not use... yet.</p>
+
+<p>This should only be used if limiting the size of the cache 
+is of great concern.  Entries are flushed from the cache on 
+a FIFO basis, regardless of the entries expiration time.<br>
+Delete operations set an entry to expired, but it will not 
+be flushed until it is automatically removed by MongoDB.</p>
+
+<h3>Options</h3>
+
+<p>TODO</p>
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
     </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		
   </body>
 </html>
