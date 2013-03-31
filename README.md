@@ -2,6 +2,9 @@
 
 A MongoDB cache store for ActiveSupport 3
 
+[![Build Status](https://travis-ci.org/kmcgrath/mongo_cache_store.png?branch=master)](https://travis-ci.org/kmcgrath/mongo_cache_store)
+[![Build Status](https://travis-ci.org/kmcgrath/mongo_cache_store.png?branch=develop)](https://travis-ci.org/kmcgrath/mongo_cache_store)
+
 ## Description
 
 MongoCacheStore uses pluggable backends to expose MongoDB 
