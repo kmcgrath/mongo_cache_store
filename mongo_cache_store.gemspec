@@ -19,6 +19,6 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'mongo', '~>1'
   gem.add_dependency 'activesupport', '~>3'
-  gem.add_development_dependency 'mocha', '~>0.13.3'
+  gem.add_development_dependency 'mocha', '~>0.13'
   gem.add_development_dependency 'rake', '~>10.0'
 end
