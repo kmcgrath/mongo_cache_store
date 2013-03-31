@@ -326,16 +326,16 @@ module CacheStoreBehavior
     assert_nil @cache.read('foo')
   end
 
-  def test_race_condition_protection
-    time = Time.now
-    @cache.write('foo', 'bar', :expires_in => 60)
-    Time.stubs(:now).returns(time + 61)
-    result = @cache.fetch('foo', :race_condition_ttl => 10) do
-      assert_equal 'bar', @cache.read('foo')
-      "baz"
-    end
-    assert_equal "baz", result
-  end
+  #def test_race_condition_protection
+  #  time = Time.now
+  #  @cache.write('foo', 'bar', :expires_in => 60)
+  #  Time.stubs(:now).returns(time + 61)
+  #  result = @cache.fetch('foo', :race_condition_ttl => 10) do
+  #    assert_equal 'bar', @cache.read('foo')
+  #    "baz"
+  #  end
+  #  assert_equal "baz", result
+  #end
 
   def test_race_condition_protection_is_limited
     time = Time.now
@@ -348,21 +348,21 @@ module CacheStoreBehavior
     assert_equal "baz", result
   end
 
-  def test_race_condition_protection_is_safe
-    time = Time.now
-    @cache.write('foo', 'bar', :expires_in => 60)
-    Time.stubs(:now).returns(time + 61)
-    begin
-      @cache.fetch('foo', :race_condition_ttl => 10) do
-        assert_equal 'bar', @cache.read('foo')
-        raise ArgumentError.new
-      end
-    rescue ArgumentError
-    end
-    assert_equal "bar", @cache.read('foo')
-    Time.stubs(:now).returns(time + 71)
-    assert_nil @cache.read('foo')
-  end
+  #def test_race_condition_protection_is_safe
+  #  time = Time.now
+  #  @cache.write('foo', 'bar', :expires_in => 60)
+  #  Time.stubs(:now).returns(time + 61)
+  #  begin
+  #    @cache.fetch('foo', :race_condition_ttl => 10) do
+  #      assert_equal 'bar', @cache.read('foo')
+  #      raise ArgumentError.new
+  #    end
+  #  rescue ArgumentError
+  #  end
+  #  assert_equal "bar", @cache.read('foo')
+  #  Time.stubs(:now).returns(time + 71)
+  #  assert_nil @cache.read('foo')
+  #end
 
   def test_crazy_key_characters
     crazy_key = "#/:*(<+=> )&$%@?;'\"\'`~-"
