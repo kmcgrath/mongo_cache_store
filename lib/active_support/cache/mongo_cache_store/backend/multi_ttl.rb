@@ -114,7 +114,7 @@ module ActiveSupport
 
             col = super
             expires_in = options[:expires_in]
-            col.ensure_index('created_at',{ expireAfterSeconds: expires_in.to_i }) unless expires_in.nil?
+            col.ensure_index('created_at',{ :expireAfterSeconds => expires_in.to_i }) unless expires_in.nil?
             @collection_map[col.name] = col
 
             return col
@@ -139,7 +139,7 @@ module ActiveSupport
             name_parts.push 'key_index'
 
             col = @db[name_parts.join('.')]
-            col.ensure_index('expires_at',{ expireAfterSeconds: 0})
+            col.ensure_index('expires_at',{ :expireAfterSeconds => 0})
             return col
           end
 

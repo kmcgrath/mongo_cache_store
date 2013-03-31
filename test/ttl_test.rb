@@ -1,8 +1,8 @@
-require_relative 'abstract_unit'
+require 'abstract_unit'
 require 'mongo'
 require 'active_support/test_case'
 require 'active_support/cache'
-require_relative 'test_modules'
+require 'test_modules'
 
 
 
