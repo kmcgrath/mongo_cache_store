@@ -59,7 +59,7 @@ module ActiveSupport
           def get_collection(options)
             return @collection if @collection.is_a? Mongo::Collection
             collection = super 
-            collection.ensure_index('expires_at',{ expireAfterSeconds: 0 })
+            collection.ensure_index('expires_at',{ :expireAfterSeconds => 0 })
             @collection = collection
           end
 

@@ -6,7 +6,7 @@ require 'test_modules'
 
 
 
-class MongoCacheStoreTTLTest < ActiveSupport::TestCase
+class MongoCacheStoreMultiTTLTest < ActiveSupport::TestCase
   def setup
     @cache = ActiveSupport::Cache.lookup_store(
       :mongo_cache_store, :TTL, 
