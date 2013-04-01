@@ -135,11 +135,11 @@ end
 
 <h2>Backends</h2>
 
-<h2>TTL</h2>
+<h3>TTL</h3>
 
 <p>TTL backend for MongoCacheStore</p>
 
-<h3>Description</h3>
+<h4>Description</h4>
 
 <p>Entries are kept in a namespaced TTL collection that will 
 automatically flush any entries as they pass their expiration 
@@ -147,23 +147,23 @@ time. This keeps the size of the cache in check over time. </p>
 
 <p><b>Requires MongoDB 2.2 or higher</b></p>
 
-<h3>Additional Options</h3>
+<h4>Additional Options</h4>
 
 <p>No additional options at this time</p>
 
-<h2>Standard</h2>
+<h3>Standard</h3>
 
 <p>Standard backend for MongoCacheStore</p>
 
-<h3>Description</h3>
+<h4>Description</h4>
 
-<p>Entreis are kept in a namespaced MongoDB collection. In a standard 
+<p>Entries are kept in a namespaced MongoDB collection. In a standard 
 collection entries are only flushed from the collection with an 
 explicit delete call or if auto_flush is enabled.  If auto_flush is 
 enabled the cache will flush all expired entries when auto_flush_threshold 
 is reached.  The threshold is based on a set number of cache instance writes. </p>
 
-<h3>Additional Options</h3>
+<h4>Additional Options</h4>
 
 <p>The following options can be added to a MongoCacheStore constructor</p>
 
@@ -191,11 +191,11 @@ is reached.  The threshold is based on a set number of cache instance writes. </
   should preform before flushing expired entries.</p>
 </blockquote>
 </li>
-</ul><h2>MultiTTL</h2>
+</ul><h3>MultiTTL</h3>
 
 <p>MultiTTL backend for MongoCacheStore</p>
 
-<h3>Description</h3>
+<h4>Description</h4>
 
 <p>Entries are stored in multiple namespaced TTL collections. 
 A namespaced TTL collection is created for each unique expiration time.<br>
@@ -204,7 +204,7 @@ kept in the same collection while entries with a 900 second expiration
 time will be kept in another.  This requires the use of a <em>key index</em> 
 collection that keeps track of which TTL collection a entry resides in. </p>
 
-<h4>Downsides</h4>
+<h5>Downsides</h5>
 
 <ul>
 <li>Cache set operations require 2 MongoDB write calls.<br>
@@ -212,11 +212,11 @@ One for the key index, one for the TTL collection.
 (unless <em>use_index</em> is false, see below)</li>
 <li>Cache read operations will require 1 or 2 MongoDB calls 
 depending on whether the 'expires_in' option is set for the read.</li>
-</ul><h4>Benefits (future)</h4>
+</ul><h5>Benefits (future)</h5>
 
 <ul>
 <li>Ability to flush cache based on expire time (TODO)</li>
-</ul><h3>Additional Options</h3>
+</ul><h4>Additional Options</h4>
 
 <p>The following options can be added to a MongoCacheStore constructor</p>
 
@@ -235,7 +235,7 @@ will eliminate the need for the key index collection and only
 one write and one read operation is necessary. </p>
 </blockquote>
 </li>
-</ul><h2>Capped</h2>
+</ul><h3>Capped</h3>
 
 <p><em>Experimental</em></p>
 
@@ -251,9 +251,29 @@ a FIFO basis, regardless of the entries expiration time.<br>
 Delete operations set an entry to expired, but it will not 
 be flushed until it is automatically removed by MongoDB.</p>
 
-<h3>Options</h3>
+<h4>Options</h4>
 
 <p>TODO</p>
+
+<h2>Build Status</h2>
+
+<p><a href="https://travis-ci.org/kmcgrath/mongo_cache_store"><img src="https://travis-ci.org/kmcgrath/mongo_cache_store.png?branch=master" alt="Build Status - Master"></a>
+<a href="https://travis-ci.org/kmcgrath/mongo_cache_store"><img src="https://travis-ci.org/kmcgrath/mongo_cache_store.png?branch=develop" alt="Build Status - Develop"></a></p>
+
+<p>Travis is used to build and test MongoCacheStore against:</p>
+
+<ul>
+<li>2.0.0</li>
+<li>1.9.3</li>
+<li>1.9.2</li>
+<li>1.8.7</li>
+<li>jruby-18mode</li>
+<li>jruby-19mode</li>
+<li>rbx-19mode </li>
+<li>ruby-head</li>
+<li>jruby-head</li>
+<li>ree</li>
+</ul>
       </section>
       <footer>
         <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
