@@ -36,26 +36,27 @@ Options for ActiveSupport::Cache and the backend]
     
 Core options are listed here.  See each backend for a list of additional optons. 
 
-  * :db* - A Mongo::DB instance.]
-  * :db_name* - Name of database to create if no 'db' is given.] 
-  * :connection* - A Mongo::Connection instance. Only used if no 'db' is given.] 
-  * :serialize* - *:always* | :on_fail | :never]
-    * :always* - (default) - Serialize all entries]
+  * *:db* - A Mongo::DB instance.
+  * *:db_name* - Name of database to create if no 'db' is given.
+  * *:connection* - A Mongo::Connection instance. Only used if no 'db' is given.
+  * *:collection_opts*
+    > Hash of options passed directly to MongoDB::Collection.
+       
+    > Useful for write conditions and read preferences
+
+  * *:serialize* - *:always* | :on_fail | :never
+    * *:always* - (default) - Serialize all entries
       > *NOTE* Without serialization class structures and instances that cannot 
         be converted to a native MongoDB type will not be stored.  Also, 
         without serialization MongoDB converts all symbols to strings.  
             
       > Therefore a hash with symbols as keys will have strings as keys when read.
  
-    * *:on_fail* - Serialize if native format fails]
+    * *:on_fail* - Serialize if native format fails
       > Try to save the entry in a native MongoDB format.  If that fails, 
         then serialize the entry. 
     * *:never* - Never serialize
       > Only save the entry if it can be saved natively by MongoDB.
-    * *:collection_opts*
-      > Hash of options passed directly to MongoDB::Collection.
-       
-      > Useful for write conditions and read preferences
 
 
 ## Increment / Decrement
