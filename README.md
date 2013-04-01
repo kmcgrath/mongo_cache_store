@@ -81,6 +81,7 @@ This is because a key can be a true Hash.  It will not be converted to a string.
 
 ### TTL
 
+
 TTL backend for MongoCacheStore
 
 #### Description
@@ -95,8 +96,9 @@ time. This keeps the size of the cache in check over time.
 
 No additional options at this time
 
+***
+### Standard
 
-### Standard 
 Standard backend for MongoCacheStore
  
 #### Description
@@ -126,8 +128,9 @@ To see a list of core options see MongoCacheStore
     > A number representing the number of writes the when the cache 
       should preform before flushing expired entries.
 
-
+***
 ### MultiTTL 
+
 
 MultiTTL backend for MongoCacheStore
  
@@ -165,8 +168,9 @@ To see a list of core options see MongoCacheStore
     will eliminate the need for the key index collection and only 
     one write and one read operation is necessary. 
 
-
+***
 ### Capped
+
  
 *Experimental*
 
