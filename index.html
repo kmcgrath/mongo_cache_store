@@ -4,31 +4,40 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>Mongo cache store by kmcgrath</title>
-
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="javascripts/scale.fix.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/main.js"></script>
     <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
   </head>
   <body>
-    <div class="wrapper">
+
       <header>
-        <h1 class="header">Mongo cache store</h1>
-        <p class="header">ActiveSupport cache using MongoDB</p>
-
-        <ul>
-          <li class="download"><a class="buttons" href="https://github.com/kmcgrath/mongo_cache_store/zipball/master">Download ZIP</a></li>
-          <li class="download"><a class="buttons" href="https://github.com/kmcgrath/mongo_cache_store/tarball/master">Download TAR</a></li>
-          <li><a class="buttons github" href="https://github.com/kmcgrath/mongo_cache_store">View On GitHub</a></li>
-        </ul>
-
-        <p class="header">This project is maintained by <a class="header name" href="https://github.com/kmcgrath">kmcgrath</a></p>
-
-
+        <h1>Mongo cache store</h1>
+        <p>ActiveSupport cache using MongoDB</p>
       </header>
+
+      <div id="banner">
+        <span id="logo"></span>
+
+        <a href="https://github.com/kmcgrath/mongo_cache_store" class="button fork"><strong>View On GitHub</strong></a>
+        <div class="downloads">
+          <span>Downloads:</span>
+          <ul>
+            <li><a href="https://github.com/kmcgrath/mongo_cache_store/zipball/master" class="button">ZIP</a></li>
+            <li><a href="https://github.com/kmcgrath/mongo_cache_store/tarball/master" class="button">TAR</a></li>
+          </ul>
+        </div>
+      </div><!-- end banner -->
+
+    <div class="wrapper">
+      <nav>
+        <ul></ul>
+      </nav>
       <section>
         <h1>MongoCacheStore</h1>
 
@@ -71,15 +80,27 @@ config.cache_store = :mongo_cache_store, :Standard, :db_name =&gt; 'db_name', :c
 <p>Core options are listed here.  See each backend for a list of additional optons. </p>
 
 <ul>
-<li>:db* - A Mongo::DB instance.]</li>
-<li>:db_name* - Name of database to create if no 'db' is given.] </li>
-<li>:connection* - A Mongo::Connection instance. Only used if no 'db' is given.] </li>
 <li>
-<p>:serialize* - <em>:always</em> | :on_fail | :never]</p>
+<em>:db</em> - A Mongo::DB instance.</li>
+<li>
+<em>:db_name</em> - Name of database to create if no 'db' is given.</li>
+<li>
+<em>:connection</em> - A Mongo::Connection instance. Only used if no 'db' is given.</li>
+<li>
+<p><em>:collection_opts</em></p>
+
+<blockquote>
+<p>Hash of options passed directly to MongoDB::Collection.</p>
+
+<p>Useful for write conditions and read preferences</p>
+</blockquote>
+</li>
+<li>
+<p><em>:serialize</em> - <em>:always</em> | :on_fail | :never</p>
 
 <ul>
 <li>
-<p>:always* - (default) - Serialize all entries]</p>
+<p><em>:always</em> - (default) - Serialize all entries</p>
 
 <blockquote>
 <p><em>NOTE</em> Without serialization class structures and instances that cannot 
@@ -90,7 +111,7 @@ without serialization MongoDB converts all symbols to strings.  </p>
 </blockquote>
 </li>
 <li>
-<p><em>:on_fail</em> - Serialize if native format fails]</p>
+<p><em>:on_fail</em> - Serialize if native format fails</p>
 
 <blockquote>
 <p>Try to save the entry in a native MongoDB format.  If that fails, 
@@ -102,15 +123,6 @@ then serialize the entry. </p>
 
 <blockquote>
 <p>Only save the entry if it can be saved natively by MongoDB.</p>
-</blockquote>
-</li>
-<li>
-<p><em>:collection_opts</em></p>
-
-<blockquote>
-<p>Hash of options passed directly to MongoDB::Collection.</p>
-
-<p>Useful for write conditions and read preferences</p>
 </blockquote>
 </li>
 </ul>
@@ -151,7 +163,7 @@ time. This keeps the size of the cache in check over time. </p>
 
 <p>No additional options at this time</p>
 
-<h3>Standard</h3>
+<hr><h3>Standard</h3>
 
 <p>Standard backend for MongoCacheStore</p>
 
@@ -191,7 +203,7 @@ is reached.  The threshold is based on a set number of cache instance writes. </
   should preform before flushing expired entries.</p>
 </blockquote>
 </li>
-</ul><h3>MultiTTL</h3>
+</ul><hr><h3>MultiTTL</h3>
 
 <p>MultiTTL backend for MongoCacheStore</p>
 
@@ -235,7 +247,7 @@ will eliminate the need for the key index collection and only
 one write and one read operation is necessary. </p>
 </blockquote>
 </li>
-</ul><h3>Capped</h3>
+</ul><hr><h3>Capped</h3>
 
 <p><em>Experimental</em></p>
 
@@ -276,10 +288,11 @@ be flushed until it is automatically removed by MongoDB.</p>
 </ul>
       </section>
       <footer>
-        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+        <p>Project maintained by <a href="https://github.com/kmcgrath">kmcgrath</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="http://twitter.com/#!/michigangraham">mattgraham</a></small></p>
       </footer>
     </div>
     <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-		
+    
   </body>
 </html>
