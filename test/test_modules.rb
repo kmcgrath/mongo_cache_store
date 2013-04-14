@@ -386,3 +386,40 @@ module CacheStoreBehavior
     assert @cache.delete(key)
   end
 end
+
+module CacheDeleteMatchedBehavior
+  def test_delete_matched
+    @cache.write("foo", "bar")
+    @cache.write("fu", "baz")
+    @cache.write("foo/bar", "baz")
+    @cache.write("fu/baz", "bar")
+    @cache.delete_matched(/oo/)
+    assert !@cache.exist?("foo")
+    assert @cache.exist?("fu")
+    assert !@cache.exist?("foo/bar")
+    assert @cache.exist?("fu/baz")
+  end
+end
+
+module CacheIncrementDecrementBehavior
+  def test_increment
+    @cache.write('foo', 1, :raw => true)
+    assert_equal 1, @cache.read('foo').to_i
+    assert_equal 2, @cache.increment('foo')
+    assert_equal 2, @cache.read('foo').to_i
+    assert_equal 3, @cache.increment('foo')
+    assert_equal 3, @cache.read('foo').to_i
+    assert_nil @cache.increment('bar')
+  end
+
+  def test_decrement
+    @cache.write('foo', 3, :raw => true)
+    assert_equal 3, @cache.read('foo').to_i
+    assert_equal 2, @cache.decrement('foo')
+    assert_equal 2, @cache.read('foo').to_i
+    assert_equal 1, @cache.decrement('foo')
+    assert_equal 1, @cache.read('foo').to_i
+    assert_nil @cache.decrement('bar')
+  end
+end
+

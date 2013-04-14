@@ -19,6 +19,8 @@ class MongoCacheStoreTTLTest < ActiveSupport::TestCase
   include CacheStoreBehavior
   # include LocalCacheBehavior
   include CacheIncrementDecrementBehavior
+  include CacheDeleteMatchedBehavior
+
   # include EncodedKeyCacheBehavior
 
 end

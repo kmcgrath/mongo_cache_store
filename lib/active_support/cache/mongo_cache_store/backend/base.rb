@@ -47,6 +47,13 @@ module ActiveSupport
             results
           end
 
+          def delete_matched(matcher, options = nil)
+            col = get_collection(options)
+            safe_rescue do
+              col.remove({'_id' => matcher})
+            end
+          end
+
           private 
 
             def expanded_key(key)
@@ -123,6 +130,7 @@ module ActiveSupport
                   }
                 )
 
+                return nil unless doc
                 doc['value'] + amount
               end
             end
@@ -176,7 +184,7 @@ module ActiveSupport
                 col.remove({'_id' => key})
               end
             end
-          
+
             def get_collection_name(options = {})
               name_parts = ['cache'] 
               name_parts.push(backend_name)
