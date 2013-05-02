@@ -190,9 +190,10 @@ be flushed until it is automatically removed by MongoDB.
 
 TODO
  
-## Build Status
+## Build Health
 [![Build Status - Master](https://travis-ci.org/kmcgrath/mongo_cache_store.png?branch=master)](https://travis-ci.org/kmcgrath/mongo_cache_store)
-[![Build Status - Develop](https://travis-ci.org/kmcgrath/mongo_cache_store.png?branch=develop)](https://travis-ci.org/kmcgrath/mongo_cache_store)
+[![Code Climate](https://codeclimate.com/github/kmcgrath/mongo_cache_store.png)](https://codeclimate.com/github/kmcgrath/mongo_cache_store)
+[![Dependency Status](https://gemnasium.com/kmcgrath/mongo_cache_store.png)](https://gemnasium.com/kmcgrath/mongo_cache_store)
 
 Travis is used to build and test MongoCacheStore against:
 * 2.0.0
