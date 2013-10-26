@@ -11,7 +11,7 @@ Support is available for standard, capped and TTL collections.
 
 ## Upgrade Note
 
-To accomidate ActiveSupport 4 underlying storage routines had
+To accommodate ActiveSupport 4 underlying storage routines had
 to change.  After upgrading to 0.3.0, any cached entries from 0.2.x
 will be considered a miss and will be overridden with a corresponding
 write action or expire naturally.
