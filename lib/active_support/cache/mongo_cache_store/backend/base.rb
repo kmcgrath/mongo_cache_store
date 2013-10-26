@@ -20,7 +20,7 @@ module ActiveSupport
             options = names.extract_options!
             options = merged_options(options)
             results = {}
-             
+
             col = get_collection(options)
 
             key_map = names.inject({}) do |h, name|
@@ -28,18 +28,17 @@ module ActiveSupport
               h
             end
 
-            safe_rescue do 
+            safe_rescue do
               query = {
                 :_id => { '$in' => key_map.keys},
                 :expires_at => {
-                  '$gt' => Time.now 
+                  '$gt' => Time.now
                 }
               }
 
               col.find(query) do |cursor|
                 cursor.each do |r| 
                   results[key_map[r['_id']]] = inflate_entry(r).value
-                  puts results.inspect
                 end
               end
             end
@@ -84,12 +83,13 @@ module ActiveSupport
             def read_entry(key,options)
               col = get_collection(options)
 
-              safe_rescue do 
+              safe_rescue do
                 query = {
                   :_id => key,
                   :expires_at => {
-                    '$gt' => Time.now 
-                  }
+                    '$gt' => Time.now
+                  },
+                  :data_store_version => ::MongoCacheStore::DATA_STORE_VERSION
                 }
 
                 response = col.find_one(query)
@@ -102,16 +102,17 @@ module ActiveSupport
             def inflate_entry(from_mongo)
                 return nil if from_mongo.nil?
 
-                entry_options = {
-                  :compressed => from_mongo['compressed'],
-                  :expires_in => from_mongo['expires_in'] 
-                }
-                if from_mongo['serialized']
-                  r_value = from_mongo['value'].to_s
-                else
-                  r_value = Marshal.dump(from_mongo['value'])
+                case from_mongo['value']
+                when BSON::Binary
+                  fm = Marshal.load(from_mongo['value'].to_s)
+                  case fm
+                  when Entry
+                    if from_mongo['raw_value'].nil? == false
+                      fm.instance_eval { @value = from_mongo['raw_value'] }
+                    end
+                    fm
+                  end
                 end
-                ActiveSupport::Cache::Entry.create(r_value,from_mongo['created_at'],entry_options)              
             end
 
             def write_counter(name, amount, options)
@@ -121,17 +122,18 @@ module ActiveSupport
               safe_rescue do
                 doc = col.find_and_modify(
                   :query => {
-                    :_id => key
+                    :_id => key,
+                    :data_store_version => ::MongoCacheStore::DATA_STORE_VERSION
                   },
                   :update => {
                     :$inc => {
-                      :value => amount
+                      :raw_value => amount
                     }
                   }
                 )
 
                 return nil unless doc
-                doc['value'] + amount
+                doc['raw_value'] + amount
               end
             end
 
@@ -140,37 +142,35 @@ module ActiveSupport
               serialize = options[:serialize] == :always ? true : false
               serialize = false if entry.value.is_a?(Integer) || entry.value.nil?
 
-              value = begin 
-                if entry.compressed?
-                  BSON::Binary.new(entry.raw_value)
-                elsif serialize 
-                  BSON::Binary.new(entry.raw_value)
-                else
-                  entry.value
-                end
+              value = BSON::Binary.new(Marshal.dump(entry))
+              unless entry.send(:compressed?) || serialize
+                raw_value = entry.value
+                entry.instance_eval { @value = nil }
               end
 
               try_cnt = 0
 
               save_doc = {
                 :_id => key,
-                :created_at => Time.at(entry.created_at),
-                :expires_in => entry.expires_in,
-                :expires_at => entry.expires_in.nil? ? Time.utc(9999) : Time.at(entry.expires_at),
-                :compressed => entry.compressed?,
+                :created_at => Time.at(entry.instance_eval { @created_at}),
+                :expires_in => entry.instance_eval { @expires_in },
+                :expires_at => entry.expires_at.nil? ? Time.utc(9999) : Time.at(entry.expires_at),
+                :compressed => entry.send( :compressed? ),
                 :serialized => serialize,
-                :value => value 
+                :value => value,
+                :raw_value => raw_value,
+                :data_store_version => ::MongoCacheStore::DATA_STORE_VERSION
               }.merge(options[:xentry] || {})
 
               safe_rescue do
                 begin
                   col.save(save_doc)
-                rescue BSON::InvalidDocument => ex
+                rescue BSON::InvalidDocument
                   if (options[:serialize] == :on_fail and try_cnt < 2)
                     save_doc[:serialized] = true
                     save_doc[:value] = BSON::Binary.new(entry.raw_value)
                     try_cnt += 1
-                    retry 
+                    retry
                   end
                 end
               end
@@ -186,7 +186,7 @@ module ActiveSupport
             end
 
             def get_collection_name(options = {})
-              name_parts = ['cache'] 
+              name_parts = ['cache']
               name_parts.push(backend_name)
               name_parts.push options[:namespace] if !options[:namespace].nil?
               name = name_parts.join('.')

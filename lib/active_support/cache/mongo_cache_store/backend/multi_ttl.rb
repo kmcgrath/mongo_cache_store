@@ -85,7 +85,7 @@ module ActiveSupport
                   :_id => key,
                   :collection => options[:collection].name,
                   :expires_in => options[:expires_in].nil? ? nil : options[:expires_in].to_i,
-                  :expires_at => entry.expires_at
+                  :expires_at => Time.at(entry.expires_at)
                 })
               end
             end

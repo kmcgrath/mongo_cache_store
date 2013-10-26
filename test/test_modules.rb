@@ -198,19 +198,21 @@ module CacheStoreBehavior
     assert_equal false, @cache.read('foo')
   end
 
-  def test_should_read_cached_numeric_from_previous_rails_versions
-    @old_cache = ActiveSupport::Cache::Entry.create( 1, Time.now )
-    assert_equal( 1, @old_cache.value )
-  end
+  if ActiveSupport::VERSION::MAJOR == 3
+    def test_should_read_cached_numeric_from_previous_rails_versions
+      @old_cache = ActiveSupport::Cache::Entry.create( 1, Time.now )
+      assert_equal( 1, @old_cache.value )
+    end
 
-  def test_should_read_cached_hash_from_previous_rails_versions
-    @old_cache = ActiveSupport::Cache::Entry.create( {}, Time.now )
-    assert_equal( {}, @old_cache.value )
-  end
+    def test_should_read_cached_hash_from_previous_rails_versions
+      @old_cache = ActiveSupport::Cache::Entry.create( {}, Time.now )
+      assert_equal( {}, @old_cache.value )
+    end
 
-  def test_should_read_cached_string_from_previous_rails_versions
-    @old_cache = ActiveSupport::Cache::Entry.create( 'string', Time.now )
-    assert_equal( 'string', @old_cache.value )
+    def test_should_read_cached_string_from_previous_rails_versions
+      @old_cache = ActiveSupport::Cache::Entry.create( 'string', Time.now )
+      assert_equal( 'string', @old_cache.value )
+    end
   end
 
   def test_read_multi
@@ -228,18 +230,20 @@ module CacheStoreBehavior
     assert_equal({"fu" => "baz"}, @cache.read_multi('foo', 'fu'))
   end
 
-  def test_read_and_write_compressed_small_data
-    @cache.write('foo', 'bar', :compress => true)
-    raw_value = @cache.send(:read_entry, 'foo', {}).raw_value
-    assert_equal 'bar', @cache.read('foo')
-    assert_equal 'bar', Marshal.load(raw_value)
-  end
+  if ActiveSupport::VERSION::MAJOR == 3
+    def test_read_and_write_compressed_small_data
+      @cache.write('foo', 'bar', :compress => true)
+      raw_value = @cache.send(:read_entry, 'foo', {}).raw_value
+      assert_equal 'bar', @cache.read('foo')
+      assert_equal 'bar', Marshal.load(raw_value)
+    end
 
-  def test_read_and_write_compressed_large_data
-    @cache.write('foo', 'bar', :compress => true, :compress_threshold => 2)
-    raw_value = @cache.send(:read_entry, 'foo', {}).raw_value
-    assert_equal 'bar', @cache.read('foo')
-    assert_equal 'bar', Marshal.load(Zlib::Inflate.inflate(raw_value))
+    def test_read_and_write_compressed_large_data
+      @cache.write('foo', 'bar', :compress => true, :compress_threshold => 2)
+      raw_value = @cache.send(:read_entry, 'foo', {}).raw_value
+      assert_equal 'bar', @cache.read('foo')
+      assert_equal 'bar', Marshal.load(Zlib::Inflate.inflate(raw_value))
+    end
   end
 
   def test_read_and_write_compressed_nil
