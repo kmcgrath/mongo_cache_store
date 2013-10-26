@@ -16,3 +16,13 @@ rvm:
   - ree
 services:
   - mongodb
+matrix:
+  exclude:
+    - rvm: 1.9.2
+      env: "ACTIVESUPPORT_VERSION=4"
+    - rvm: jruby-18mode
+      env: "ACTIVESUPPORT_VERSION=4"
+    - rvm: 1.8.7
+      env: "ACTIVESUPPORT_VERSION=4"
+    - rvm: ree
+      env: "ACTIVESUPPORT_VERSION=4"
