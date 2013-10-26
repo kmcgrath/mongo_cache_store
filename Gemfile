@@ -4,7 +4,7 @@ as_version = ENV["ACTIVESUPPORT_VERSION"] || "default"
 
 as = case as_version
         when "master"
-          {github: "rails/rails"}
+          {:github => "rails/rails"}
         when "default"
           "~> 3.2.0"
         else
