@@ -2,7 +2,7 @@ language: ruby
 env:
   - "ACTIVESUPPORT_VERSION=3.1"
   - "ACTIVESUPPORT_VERSION=3.2"
-  - "ACTIVESUPPORT_VERSION=master"
+  - "ACTIVESUPPORT_VERSION=4"
 rvm:
   - 2.0.0
   - 1.9.3

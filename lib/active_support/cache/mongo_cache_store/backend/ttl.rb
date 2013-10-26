@@ -43,22 +43,22 @@ module ActiveSupport
             now = Time.now 
             options[:xentry] = {
               :created_at   => now,
-              :expires_at   => entry.expires_in.nil? ? Time.utc(9999) : now + entry.expires_in.to_i
+              :expires_at   => entry.expires_at.nil? ? Time.utc(9999) : Time.at(entry.expires_at)
             }
 
             super(key,entry,options)
           end
 
 
-          private 
+          private
 
           def backend_name
             "ttl"
           end
 
           def get_collection(options)
-            return @collection if @collection.is_a? Mongo::Collection
-            collection = super 
+            return @collection if (@collection && @collection.is_a?(Mongo::Collection))
+            collection = super
             collection.ensure_index('expires_at',{ :expireAfterSeconds => 0 })
             @collection = collection
           end
