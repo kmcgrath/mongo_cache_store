@@ -88,7 +88,8 @@ module ActiveSupport
                   :_id => key,
                   :expires_at => {
                     '$gt' => Time.now
-                  }
+                  },
+                  :data_store_version => ::MongoCacheStore::DATA_STORE_VERSION
                 }
 
                 response = col.find_one(query)
@@ -100,11 +101,6 @@ module ActiveSupport
 
             def inflate_entry(from_mongo)
                 return nil if from_mongo.nil?
-
-                entry_options = {
-                  :compressed => from_mongo['compressed'],
-                  :expires_in => from_mongo['expires_in'] 
-                }
 
                 case from_mongo['value']
                 when BSON::Binary
@@ -126,7 +122,8 @@ module ActiveSupport
               safe_rescue do
                 doc = col.find_and_modify(
                   :query => {
-                    :_id => key
+                    :_id => key,
+                    :data_store_version => ::MongoCacheStore::DATA_STORE_VERSION
                   },
                   :update => {
                     :$inc => {
@@ -161,7 +158,8 @@ module ActiveSupport
                 :compressed => entry.send( :compressed? ),
                 :serialized => serialize,
                 :value => value,
-                :raw_value => raw_value
+                :raw_value => raw_value,
+                :data_store_version => ::MongoCacheStore::DATA_STORE_VERSION
               }.merge(options[:xentry] || {})
 
               safe_rescue do
