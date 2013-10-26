@@ -148,6 +148,7 @@ module ActiveSupport
               value = BSON::Binary.new(Marshal.dump(entry))
               unless entry.send(:compressed?) || serialize
                 raw_value = entry.value
+                entry.instance_eval { @value = nil }
               end
 
               try_cnt = 0
