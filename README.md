@@ -1,14 +1,6 @@
 # MongoCacheStore
 
-A MongoDB cache store for ActiveSupport 3 and 4.1
-
-## Version Note
-
-ActiveSupport 4.0 reimplemnted cache and broke most ActiveSupport 3
-caches.  ActiveSupport 4.1 however allows this (and I assume other
-cache drivers written for v3) to work without modification. 
-
-In short, this gem works with ActiveSupport >=3, !=4.0, ~>4.1
+A MongoDB cache store for ActiveSupport
 
 
 ## Description
