@@ -4,63 +4,71 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>Mongo cache store by kmcgrath</title>
+
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script src="javascripts/main.js"></script>
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
+    <script src="javascripts/scale.fix.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
   </head>
   <body>
-
-      <header>
-        <h1>Mongo cache store</h1>
-        <p>ActiveSupport cache using MongoDB</p>
-      </header>
-
-      <div id="banner">
-        <span id="logo"></span>
-
-        <a href="https://github.com/kmcgrath/mongo_cache_store" class="button fork"><strong>View On GitHub</strong></a>
-        <div class="downloads">
-          <span>Downloads:</span>
-          <ul>
-            <li><a href="https://github.com/kmcgrath/mongo_cache_store/zipball/master" class="button">ZIP</a></li>
-            <li><a href="https://github.com/kmcgrath/mongo_cache_store/tarball/master" class="button">TAR</a></li>
-          </ul>
-        </div>
-      </div><!-- end banner -->
-
     <div class="wrapper">
-      <nav>
-        <ul></ul>
-      </nav>
+      <header>
+        <h1 class="header">Mongo cache store</h1>
+        <p class="header">ActiveSupport cache using MongoDB</p>
+
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/kmcgrath/mongo_cache_store/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/kmcgrath/mongo_cache_store/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/kmcgrath/mongo_cache_store">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/kmcgrath">kmcgrath</a></p>
+
+
+      </header>
       <section>
-        <h1>MongoCacheStore</h1>
+        <h1>
+<a name="mongocachestore" class="anchor" href="#mongocachestore"><span class="octicon octicon-link"></span></a>MongoCacheStore</h1>
 
-<p>A MongoDB cache store for ActiveSupport 3</p>
+<p>A MongoDB cache store for ActiveSupport</p>
 
-<h2>Description</h2>
+<h2>
+<a name="description" class="anchor" href="#description"><span class="octicon octicon-link"></span></a>Description</h2>
 
 <p>MongoCacheStore uses pluggable backends to expose MongoDB 
 as a cache store to ActiveSupport applications.  Each backend 
 allows the application to customize how the cache operates.<br>
 Support is available for standard, capped and TTL collections.</p>
 
-<h2>Initialize the cache</h2>
+<h2>
+<a name="upgrade-note" class="anchor" href="#upgrade-note"><span class="octicon octicon-link"></span></a>Upgrade Note</h2>
 
-<h3>Usage</h3>
+<p>To accommodate ActiveSupport 4 underlying storage routines had
+to change.  After upgrading to 0.3.0, any cached entries from 0.2.x
+will be considered a miss and will be overridden with a corresponding
+write action or expire naturally.</p>
+
+<p>MongoCacheStore::DATA_STORE_VERSION determines whether a cached entry
+is compatible with the current version of the gem.</p>
+
+<h2>
+<a name="initialize-the-cache" class="anchor" href="#initialize-the-cache"><span class="octicon octicon-link"></span></a>Initialize the cache</h2>
+
+<h3>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h3>
 
 <pre><code>config.cache_store = :mongo_cache_store, :TTL, :db =&gt; Mongo::DB.new('db_name',Mongo::Connection.new)
 config.cache_store = :mongo_cache_store, :Standard, :db_name =&gt; 'db_name', :connection =&gt; Mongo::Connection.new, :serialize =&gt; :on_fail
 </code></pre>
 
-<h3>Attributes</h3>
+<h3>
+<a name="attributes" class="anchor" href="#attributes"><span class="octicon octicon-link"></span></a>Attributes</h3>
 
-<h4>backend</h4>
+<h4>
+<a name="backend" class="anchor" href="#backend"><span class="octicon octicon-link"></span></a>backend</h4>
 
 <p>Symbol representing the backend the cache should use </p>
 
@@ -73,7 +81,8 @@ config.cache_store = :mongo_cache_store, :Standard, :db_name =&gt; 'db_name', :c
 <em>:MultiTTL</em> - ActiveSupport::Cache::MongoCacheStore::Backend::MultiTTL</li>
 <li>
 <em>:Capped</em> - ActiveSupport::Cache::MongoCacheStore::Backend::Capped</li>
-</ul><h4>options</h4>
+</ul><h4>
+<a name="options" class="anchor" href="#options"><span class="octicon octicon-link"></span></a>options</h4>
 
 <p>Options for ActiveSupport::Cache and the backend] </p>
 
@@ -104,8 +113,8 @@ config.cache_store = :mongo_cache_store, :Standard, :db_name =&gt; 'db_name', :c
 
 <blockquote>
 <p><em>NOTE</em> Without serialization class structures and instances that cannot 
-be converted to a native MongoDB type will not be stored.  Also, 
-without serialization MongoDB converts all symbols to strings.  </p>
+  be converted to a native MongoDB type will not be stored.  Also, 
+  without serialization MongoDB converts all symbols to strings.  </p>
 
 <p>Therefore a hash with symbols as keys will have strings as keys when read.</p>
 </blockquote>
@@ -115,7 +124,7 @@ without serialization MongoDB converts all symbols to strings.  </p>
 
 <blockquote>
 <p>Try to save the entry in a native MongoDB format.  If that fails, 
-then serialize the entry. </p>
+  then serialize the entry. </p>
 </blockquote>
 </li>
 <li>
@@ -127,13 +136,15 @@ then serialize the entry. </p>
 </li>
 </ul>
 </li>
-</ul><h2>Increment / Decrement</h2>
+</ul><h2>
+<a name="increment--decrement" class="anchor" href="#increment--decrement"><span class="octicon octicon-link"></span></a>Increment / Decrement</h2>
 
 <p>Increment and decrement values must be an Integer.  In the ActiveSupport test
 suite strings and integers are used interchangeably.  This cache store however
 uses MongoDB's $inc operator which must, be an integer.  </p>
 
-<h2>Keys can be a Hash</h2>
+<h2>
+<a name="keys-can-be-a-hash" class="anchor" href="#keys-can-be-a-hash"><span class="octicon octicon-link"></span></a>Keys can be a Hash</h2>
 
 <p>The following test from ActiveSupport fails with MongoCacheStore:</p>
 
@@ -145,13 +156,16 @@ end
 
 <p>This is because a key can be a true Hash.  It will not be converted to a string.</p>
 
-<h2>Backends</h2>
+<h2>
+<a name="backends" class="anchor" href="#backends"><span class="octicon octicon-link"></span></a>Backends</h2>
 
-<h3>TTL</h3>
+<h3>
+<a name="ttl" class="anchor" href="#ttl"><span class="octicon octicon-link"></span></a>TTL</h3>
 
 <p>TTL backend for MongoCacheStore</p>
 
-<h4>Description</h4>
+<h4>
+<a name="description-1" class="anchor" href="#description-1"><span class="octicon octicon-link"></span></a>Description</h4>
 
 <p>Entries are kept in a namespaced TTL collection that will 
 automatically flush any entries as they pass their expiration 
@@ -159,15 +173,18 @@ time. This keeps the size of the cache in check over time. </p>
 
 <p><b>Requires MongoDB 2.2 or higher</b></p>
 
-<h4>Additional Options</h4>
+<h4>
+<a name="additional-options" class="anchor" href="#additional-options"><span class="octicon octicon-link"></span></a>Additional Options</h4>
 
 <p>No additional options at this time</p>
 
-<hr><h3>Standard</h3>
+<hr><h3>
+<a name="standard" class="anchor" href="#standard"><span class="octicon octicon-link"></span></a>Standard</h3>
 
 <p>Standard backend for MongoCacheStore</p>
 
-<h4>Description</h4>
+<h4>
+<a name="description-2" class="anchor" href="#description-2"><span class="octicon octicon-link"></span></a>Description</h4>
 
 <p>Entries are kept in a namespaced MongoDB collection. In a standard 
 collection entries are only flushed from the collection with an 
@@ -175,7 +192,8 @@ explicit delete call or if auto_flush is enabled.  If auto_flush is
 enabled the cache will flush all expired entries when auto_flush_threshold 
 is reached.  The threshold is based on a set number of cache instance writes. </p>
 
-<h4>Additional Options</h4>
+<h4>
+<a name="additional-options-1" class="anchor" href="#additional-options-1"><span class="octicon octicon-link"></span></a>Additional Options</h4>
 
 <p>The following options can be added to a MongoCacheStore constructor</p>
 
@@ -203,11 +221,13 @@ is reached.  The threshold is based on a set number of cache instance writes. </
   should preform before flushing expired entries.</p>
 </blockquote>
 </li>
-</ul><hr><h3>MultiTTL</h3>
+</ul><hr><h3>
+<a name="multittl" class="anchor" href="#multittl"><span class="octicon octicon-link"></span></a>MultiTTL</h3>
 
 <p>MultiTTL backend for MongoCacheStore</p>
 
-<h4>Description</h4>
+<h4>
+<a name="description-3" class="anchor" href="#description-3"><span class="octicon octicon-link"></span></a>Description</h4>
 
 <p>Entries are stored in multiple namespaced TTL collections. 
 A namespaced TTL collection is created for each unique expiration time.<br>
@@ -216,7 +236,8 @@ kept in the same collection while entries with a 900 second expiration
 time will be kept in another.  This requires the use of a <em>key index</em> 
 collection that keeps track of which TTL collection a entry resides in. </p>
 
-<h5>Downsides</h5>
+<h5>
+<a name="downsides" class="anchor" href="#downsides"><span class="octicon octicon-link"></span></a>Downsides</h5>
 
 <ul>
 <li>Cache set operations require 2 MongoDB write calls.<br>
@@ -224,11 +245,13 @@ One for the key index, one for the TTL collection.
 (unless <em>use_index</em> is false, see below)</li>
 <li>Cache read operations will require 1 or 2 MongoDB calls 
 depending on whether the 'expires_in' option is set for the read.</li>
-</ul><h5>Benefits (future)</h5>
+</ul><h5>
+<a name="benefits-future" class="anchor" href="#benefits-future"><span class="octicon octicon-link"></span></a>Benefits (future)</h5>
 
 <ul>
 <li>Ability to flush cache based on expire time (TODO)</li>
-</ul><h4>Additional Options</h4>
+</ul><h4>
+<a name="additional-options-2" class="anchor" href="#additional-options-2"><span class="octicon octicon-link"></span></a>Additional Options</h4>
 
 <p>The following options can be added to a MongoCacheStore constructor</p>
 
@@ -242,18 +265,20 @@ depending on whether the 'expires_in' option is set for the read.</li>
 <p>Default: true</p>
 
 <p>This should only be set to <em>false</em> if all fetch and/or read 
-operations are passed the <em>:expires_in</em> option.  If so, this 
-will eliminate the need for the key index collection and only 
-one write and one read operation is necessary. </p>
+  operations are passed the <em>:expires_in</em> option.  If so, this 
+  will eliminate the need for the key index collection and only 
+  one write and one read operation is necessary. </p>
 </blockquote>
 </li>
-</ul><hr><h3>Capped</h3>
+</ul><hr><h3>
+<a name="capped" class="anchor" href="#capped"><span class="octicon octicon-link"></span></a>Capped</h3>
 
 <p><em>Experimental</em></p>
 
 <p>Capped backend for MongoCacheStore</p>
 
-<h3>Description</h3>
+<h3>
+<a name="description-4" class="anchor" href="#description-4"><span class="octicon octicon-link"></span></a>Description</h3>
 
 <p><em>Experimental</em> do not use... yet.</p>
 
@@ -263,14 +288,17 @@ a FIFO basis, regardless of the entries expiration time.<br>
 Delete operations set an entry to expired, but it will not 
 be flushed until it is automatically removed by MongoDB.</p>
 
-<h4>Options</h4>
+<h4>
+<a name="options-1" class="anchor" href="#options-1"><span class="octicon octicon-link"></span></a>Options</h4>
 
 <p>TODO</p>
 
-<h2>Build Status</h2>
+<h2>
+<a name="build-health" class="anchor" href="#build-health"><span class="octicon octicon-link"></span></a>Build Health</h2>
 
 <p><a href="https://travis-ci.org/kmcgrath/mongo_cache_store"><img src="https://travis-ci.org/kmcgrath/mongo_cache_store.png?branch=master" alt="Build Status - Master"></a>
-<a href="https://travis-ci.org/kmcgrath/mongo_cache_store"><img src="https://travis-ci.org/kmcgrath/mongo_cache_store.png?branch=develop" alt="Build Status - Develop"></a></p>
+<a href="https://codeclimate.com/github/kmcgrath/mongo_cache_store"><img src="https://codeclimate.com/github/kmcgrath/mongo_cache_store.png" alt="Code Climate"></a>
+<a href="https://gemnasium.com/kmcgrath/mongo_cache_store"><img src="https://gemnasium.com/kmcgrath/mongo_cache_store.png" alt="Dependency Status"></a></p>
 
 <p>Travis is used to build and test MongoCacheStore against:</p>
 
@@ -288,11 +316,10 @@ be flushed until it is automatically removed by MongoDB.</p>
 </ul>
       </section>
       <footer>
-        <p>Project maintained by <a href="https://github.com/kmcgrath">kmcgrath</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="http://twitter.com/#!/michigangraham">mattgraham</a></small></p>
+        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
       </footer>
     </div>
     <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-    
+		
   </body>
 </html>
